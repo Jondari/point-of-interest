@@ -3,7 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
+import { Route } from '../types/route';
 import POIMarker from './POIMarker';
+import RoutePolyline from './RoutePolyline';
 
 interface MapProps {
   latitude: number;
@@ -14,6 +16,7 @@ interface MapProps {
   selectedPOI?: POI | null;
   onPOIPress?: (poi: POI) => void;
   onRegionChangeComplete?: (region: Region) => void;
+  route?: Route | null;
 }
 
 export default function Map({
@@ -25,6 +28,7 @@ export default function Map({
   selectedPOI,
   onPOIPress,
   onRegionChangeComplete,
+  route = null,
 }: MapProps) {
   const mapRef = useRef<MapView>(null);
 
@@ -82,6 +86,8 @@ export default function Map({
             isSelected={selectedPOI?.id === poi.id}
           />
         ))}
+
+        {route && <RoutePolyline route={route} />}
 
         {showUserLocation && (
           <Marker

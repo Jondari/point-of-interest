@@ -5,7 +5,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
+import { Route } from '../types/route';
 import POIMarker from './POIMarker.web';
+import RoutePolyline from './RoutePolyline.web';
 
 interface MapRegion {
   latitude: number;
@@ -22,6 +24,7 @@ interface MapProps {
   selectedPOI?: POI | null;
   onPOIPress?: (poi: POI) => void;
   onRegionChangeComplete?: (region: MapRegion) => void;
+  route?: Route | null;
 }
 
 const userIcon = L.divIcon({
@@ -87,6 +90,7 @@ export default function Map({
   selectedPOI,
   onPOIPress,
   onRegionChangeComplete,
+  route = null,
 }: MapProps) {
   const handlePOIPress = useCallback(
     (poi: POI) => {
@@ -119,6 +123,8 @@ export default function Map({
             isSelected={selectedPOI?.id === poi.id}
           />
         ))}
+
+        {route && <RoutePolyline route={route} />}
 
         {showUserLocation && (
           <Marker position={[latitude, longitude]} icon={userIcon} zIndexOffset={1000} />

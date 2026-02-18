@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 
 export interface LocationData {
@@ -20,6 +21,8 @@ export function useLocation() {
     isLoading: true,
     permissionStatus: null,
   });
+  const watchSubscriptionRef = useRef<Location.LocationSubscription | null>(null);
+  const webIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const requestPermission = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true, errorMessage: null }));
@@ -79,6 +82,64 @@ export function useLocation() {
     }
   }, []);
 
+  const startWatching = useCallback(async () => {
+    if (Platform.OS === 'web') {
+      if (webIntervalRef.current) return;
+      webIntervalRef.current = setInterval(async () => {
+        try {
+          const loc = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          setState(prev => ({
+            ...prev,
+            location: {
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+            },
+          }));
+        } catch {
+          // Silently fail
+        }
+      }, 5000);
+      return;
+    }
+
+    if (watchSubscriptionRef.current) return;
+
+    try {
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Balanced,
+          distanceInterval: 50,
+          timeInterval: 5000,
+        },
+        (loc) => {
+          setState(prev => ({
+            ...prev,
+            location: {
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+            },
+          }));
+        }
+      );
+      watchSubscriptionRef.current = subscription;
+    } catch {
+      // Silently fail — getCurrentLocation still works as fallback
+    }
+  }, []);
+
+  const stopWatching = useCallback(() => {
+    if (webIntervalRef.current) {
+      clearInterval(webIntervalRef.current);
+      webIntervalRef.current = null;
+    }
+    if (watchSubscriptionRef.current) {
+      watchSubscriptionRef.current.remove();
+      watchSubscriptionRef.current = null;
+    }
+  }, []);
+
   const initLocation = useCallback(async () => {
     const hasPermission = await requestPermission();
     if (hasPermission) {
@@ -88,12 +149,17 @@ export function useLocation() {
 
   useEffect(() => {
     initLocation();
-  }, [initLocation]);
+    return () => {
+      stopWatching();
+    };
+  }, [initLocation, stopWatching]);
 
   return {
     ...state,
     requestPermission,
     getCurrentLocation,
     refreshLocation: getCurrentLocation,
+    startWatching,
+    stopWatching,
   };
 }

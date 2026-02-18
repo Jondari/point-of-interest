@@ -44,6 +44,10 @@ export default {
     transit: "Transports",
     duration: "Durée",
     distance: "Distance",
+    calculating: "Calcul de l'itinéraire...",
+    fetchError: "Impossible de calculer l'itinéraire",
+    clear: "Effacer l'itinéraire",
+    steps: "Étapes",
   },
   settings: {
     language: "Langue",

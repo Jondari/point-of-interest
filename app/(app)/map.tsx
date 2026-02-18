@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -6,17 +6,22 @@ import { useTranslation } from 'react-i18next';
 import Map from '../../components/Map';
 import CategoryFilter from '../../components/CategoryFilter';
 import POICard from '../../components/POICard';
+import TransportModeSelector from '../../components/TransportModeSelector';
+import RouteDirections from '../../components/RouteDirections';
 import { useLocation } from '../../hooks/useLocation';
 import { useAuth } from '../../hooks/useAuth';
 import { usePOI } from '../../hooks/usePOI';
+import { useRoute } from '../../hooks/useRoute';
 import { changeLanguage } from '../../locales';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
 import { POI } from '../../types/poi';
+import { RoutePoint } from '../../types/route';
 
 export default function MapScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { location, isLoading: locationLoading, errorMessage, refreshLocation } = useLocation();
+  const { location, isLoading: locationLoading, errorMessage, refreshLocation, startWatching, stopWatching } = useLocation();
+  const routeDestinationRef = useRef<RoutePoint | null>(null);
   const { logout } = useAuth();
   const {
     pois,
@@ -27,6 +32,15 @@ export default function MapScreen() {
     toggleCategory,
     selectPOI,
   } = usePOI();
+  const {
+    route,
+    isLoading: routeLoading,
+    error: routeError,
+    transportMode,
+    calculateRoute,
+    setTransportMode,
+    clearRoute,
+  } = useRoute();
 
   useEffect(() => {
     if (location) {
@@ -53,9 +67,28 @@ export default function MapScreen() {
   }, [selectPOI]);
 
   const handleNavigateToPOI = useCallback((poi: POI) => {
-    // TODO: Implement navigation to route screen
-    console.log('Navigate to:', poi.name);
-  }, []);
+    if (!location) return;
+    const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
+    const to: RoutePoint = { latitude: poi.latitude, longitude: poi.longitude };
+    routeDestinationRef.current = to;
+    calculateRoute(from, to);
+    selectPOI(null);
+    startWatching();
+  }, [location, calculateRoute, selectPOI, startWatching]);
+
+  const handleClearRoute = useCallback(() => {
+    clearRoute();
+    routeDestinationRef.current = null;
+    stopWatching();
+  }, [clearRoute, stopWatching]);
+
+  // Recalculate route when position updates
+  useEffect(() => {
+    if (route && location && routeDestinationRef.current) {
+      const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
+      calculateRoute(from, routeDestinationRef.current);
+    }
+  }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRegionChange = useCallback(
     (region: { latitude: number; longitude: number }) => {
@@ -102,6 +135,7 @@ export default function MapScreen() {
         selectedPOI={selectedPOI}
         onPOIPress={handlePOIPress}
         onRegionChangeComplete={handleRegionChange}
+        route={route}
       />
 
       <SafeAreaView style={styles.overlay} pointerEvents="box-none">
@@ -132,19 +166,43 @@ export default function MapScreen() {
         </View>
 
         <View style={styles.controls}>
+          {route && (
+            <TouchableOpacity style={styles.controlButton} onPress={handleClearRoute}>
+              <Text style={styles.controlButtonText}>✕</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.controlButton} onPress={refreshLocation}>
             <Text style={styles.controlButtonText}>📍</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
-      {selectedPOI && (
+      {selectedPOI && !route && (
         <View style={styles.poiCardContainer}>
           <POICard
             poi={selectedPOI}
             onClose={handleClosePOI}
             onNavigate={handleNavigateToPOI}
           />
+        </View>
+      )}
+
+      {(route || routeLoading) && (
+        <View style={styles.routePanelContainer}>
+          <TransportModeSelector
+            selectedMode={transportMode}
+            onSelectMode={setTransportMode}
+            disabled={routeLoading}
+          />
+          {routeLoading && (
+            <ActivityIndicator size="small" color={colors.primary} />
+          )}
+          {routeError && (
+            <Text style={styles.routeError}>{t(routeError)}</Text>
+          )}
+          {route && (
+            <RouteDirections route={route} onClose={handleClearRoute} />
+          )}
         </View>
       )}
     </View>
@@ -280,5 +338,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  routePanelContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
+    padding: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  routeError: {
+    color: colors.error,
+    fontSize: fontSize.sm,
+    textAlign: 'center',
+    paddingVertical: spacing.sm,
   },
 });

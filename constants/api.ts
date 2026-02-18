@@ -1,6 +1,7 @@
 export const API_CONFIG = {
   OVERPASS_URL: 'https://overpass-api.de/api/interpreter',
-  OSRM_URL: 'https://router.project-osrm.org',
+  OSRM_FOOT_URL: 'https://routing.openstreetmap.de/routed-foot',
+  OSRM_CAR_URL: 'https://routing.openstreetmap.de/routed-car',
   NAVITIA_URL: 'https://api.navitia.io/v1',
   NAVITIA_COVERAGE: 'fr-idf',
 };
