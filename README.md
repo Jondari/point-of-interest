@@ -8,13 +8,14 @@ A cross-platform mobile and web application to explore points of interest (monum
 - **POI search** via Overpass API (monuments, museums, parks, restaurants)
 - **Category filters** with color-coded interactive chips
 - **POI detail card** with address, opening hours, phone and website
+- **Route planning** with walking/driving directions via OSRM
+- **Real-time GPS tracking** with automatic route recalculation and arrival detection
 - **User geolocation** with GPS permission handling
 - **Cross-platform**: iOS, Android and Web
 - **Bilingual**: French / English with automatic language detection
 
 ### Upcoming
 
-- Walking/driving routes via OSRM
 - Public transit via Navitia.io
 - Danger zone heatmap via data.gouv.fr
 

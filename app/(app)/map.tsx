@@ -17,6 +17,22 @@ import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../const
 import { POI } from '../../types/poi';
 import { RoutePoint } from '../../types/route';
 
+const ARRIVAL_THRESHOLD_METERS = 30;
+
+function getDistanceMeters(
+  lat1: number, lon1: number,
+  lat2: number, lon2: number
+): number {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function MapScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
@@ -82,12 +98,23 @@ export default function MapScreen() {
     stopWatching();
   }, [clearRoute, stopWatching]);
 
-  // Recalculate route when position updates
+  // Recalculate route when position updates, stop when arrived
   useEffect(() => {
-    if (route && location && routeDestinationRef.current) {
-      const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
-      calculateRoute(from, routeDestinationRef.current);
+    if (!route || !location || !routeDestinationRef.current) return;
+
+    const dest = routeDestinationRef.current;
+    const distanceToDestination = getDistanceMeters(
+      location.latitude, location.longitude,
+      dest.latitude, dest.longitude
+    );
+
+    if (distanceToDestination < ARRIVAL_THRESHOLD_METERS) {
+      handleClearRoute();
+      return;
     }
+
+    const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
+    calculateRoute(from, dest);
   }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRegionChange = useCallback(

@@ -17,11 +17,16 @@ components/
   POIMarker.web.tsx        # Web POI marker (Leaflet divIcon)
   CategoryFilter.tsx       # Category filter bar (chips)
   POICard.tsx              # Selected POI detail card
+  RoutePolyline.tsx        # Native route path
+  RoutePolyline.web.tsx    # Web route path
+  TransportModeSelector.tsx # Walking/driving mode picker
+  RouteDirections.tsx      # Step-by-step directions panel
 
 hooks/
   useAuth.ts               # Authentication state
-  useLocation.ts           # GPS permission and position
+  useLocation.ts           # GPS permission, position and tracking
   usePOI.ts                # POI fetching, filtering and selection
+  useRoute.ts              # Route calculation and state
 
 stores/
   authStore.ts             # Auth persistence (AsyncStorage)
@@ -30,10 +35,11 @@ stores/
 
 services/
   overpassApi.ts           # Overpass API client (OpenStreetMap)
+  osrmApi.ts               # OSRM routing client (walking/driving)
 
 types/
   poi.ts                   # POI, categories, filters
-  route.ts                 # Route types (upcoming)
+  route.ts                 # Route, steps, transport modes
   dangerZone.ts            # Heatmap types (upcoming)
 
 constants/
@@ -50,8 +56,8 @@ locales/
 
 The app uses React Native's platform extension resolution to serve different map implementations:
 
-- **Native (iOS/Android)**: `Map.tsx` and `POIMarker.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
-- **Web**: `Map.web.tsx` and `POIMarker.web.tsx` use `react-leaflet` with Leaflet's tile layer.
+- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx` and `RoutePolyline.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
+- **Web**: `Map.web.tsx`, `POIMarker.web.tsx` and `RoutePolyline.web.tsx` use `react-leaflet` with Leaflet's tile layer.
 
 Metro/Expo automatically resolves `.web.tsx` files for the web platform.
 
@@ -60,7 +66,7 @@ Metro/Expo automatically resolves `.web.tsx` files for the web platform.
 The app does not use Redux or Zustand. State is managed through:
 
 1. **Stores** — Plain objects with async methods wrapping `AsyncStorage`. They handle persistence only (no reactive state).
-2. **Hooks** — Custom hooks (`useAuth`, `useLocation`, `usePOI`) hold reactive state via `useState` and consume stores for persistence.
+2. **Hooks** — Custom hooks (`useAuth`, `useLocation`, `usePOI`, `useRoute`) hold reactive state via `useState` and consume stores for persistence. `useRoute` has no store — route state is transient.
 
 ```
 AsyncStorage <-- stores (read/write) <-- hooks (reactive state) <-- components (UI)

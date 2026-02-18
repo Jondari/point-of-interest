@@ -5,7 +5,7 @@
 | API | Purpose | Auth | Status |
 |-----|---------|------|--------|
 | [Overpass API](https://overpass-api.de/) | POI search (OpenStreetMap) | None | Implemented |
-| [OSRM](http://router.project-osrm.org/) | Walking/driving routes | None | Planned |
+| [OSRM](https://routing.openstreetmap.de/) | Walking/driving routes | None | Implemented |
 | [Navitia.io](https://www.navitia.io/) | Public transit routes | API key (free, 3000 req/day) | Planned |
 | [data.gouv.fr](https://www.data.gouv.fr/) | Crime data for heatmap | None | Planned |
 
@@ -32,6 +32,10 @@ Builds an Overpass QL query filtering OSM nodes/ways by category tags, executes 
 
 Converts a center point and radius (default: 5000m) into a `BoundingBox` for Overpass queries.
 
+### Unnamed POI filtering
+
+By default, POIs without a name are excluded from results (many monuments lack names in OSM). This is controlled by the `SHOW_UNNAMED_POI` environment variable (see `.env.sample`).
+
 ### Request handling
 
 - Timeout: 15 seconds (via `AbortController`)
@@ -43,9 +47,18 @@ Converts a center point and radius (default: 5000m) into a `BoundingBox` for Ove
 All API URLs and defaults are defined in `constants/api.ts`:
 
 ```typescript
-API_CONFIG.OVERPASS_URL  // https://overpass-api.de/api/interpreter
-API_CONFIG.OSRM_URL     // https://router.project-osrm.org
-API_CONFIG.NAVITIA_URL  // https://api.navitia.io/v1
-DEFAULT_SEARCH_RADIUS   // 5000 (meters)
-API_TIMEOUT             // 15000 (ms)
+API_CONFIG.OVERPASS_URL   // https://overpass-api.de/api/interpreter
+API_CONFIG.OSRM_FOOT_URL // https://routing.openstreetmap.de/routed-foot
+API_CONFIG.OSRM_CAR_URL  // https://routing.openstreetmap.de/routed-car
+API_CONFIG.NAVITIA_URL   // https://api.navitia.io/v1
+DEFAULT_SEARCH_RADIUS    // 5000 (meters)
+API_TIMEOUT              // 15000 (ms)
 ```
+
+## Environment Variables
+
+See `.env.sample` for available configuration:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SHOW_UNNAMED_POI` | `false` | Show POIs that have no name in OpenStreetMap |

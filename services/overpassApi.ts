@@ -69,12 +69,19 @@ function detectCategory(tags: Record<string, string>): POICategory {
   return 'monument';
 }
 
+const SHOW_UNNAMED_POI = process.env.SHOW_UNNAMED_POI === 'true';
+
 function parseOverpassResponse(data: OverpassResponse): POI[] {
   return data.elements
     .filter(el => {
       const lat = el.lat ?? el.center?.lat;
       const lon = el.lon ?? el.center?.lon;
-      return lat !== undefined && lon !== undefined;
+      if (lat === undefined || lon === undefined) return false;
+      if (!SHOW_UNNAMED_POI) {
+        const tags = el.tags ?? {};
+        if (!tags.name && !tags['name:fr']) return false;
+      }
+      return true;
     })
     .map(el => {
       const tags = el.tags ?? {};
