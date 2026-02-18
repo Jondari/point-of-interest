@@ -1,14 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
+import { POI } from '../types/poi';
+import POIMarker from './POIMarker.web';
+
+interface MapRegion {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
 
 interface MapProps {
   latitude: number;
   longitude: number;
   showUserLocation?: boolean;
+  pois?: POI[];
+  selectedPOI?: POI | null;
+  onPOIPress?: (poi: POI) => void;
+  onRegionChangeComplete?: (region: MapRegion) => void;
 }
 
 const userIcon = L.divIcon({
@@ -20,6 +33,7 @@ const userIcon = L.divIcon({
     border: 3px solid white;
     border-radius: 50%;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1000;
   "></div>`,
   iconSize: [24, 24],
   iconAnchor: [12, 12],
@@ -39,22 +53,75 @@ function MapController({ latitude, longitude }: { latitude: number; longitude: n
   return null;
 }
 
-export default function Map({ latitude, longitude, showUserLocation = true }: MapProps) {
+function MapEventHandler({
+  onRegionChangeComplete,
+}: {
+  onRegionChangeComplete?: (region: MapRegion) => void;
+}) {
+  const map = useMapEvents({
+    moveend: () => {
+      if (onRegionChangeComplete) {
+        const center = map.getCenter();
+        const bounds = map.getBounds();
+        const latDelta = bounds.getNorth() - bounds.getSouth();
+        const lonDelta = bounds.getEast() - bounds.getWest();
+
+        onRegionChangeComplete({
+          latitude: center.lat,
+          longitude: center.lng,
+          latitudeDelta: latDelta,
+          longitudeDelta: lonDelta,
+        });
+      }
+    },
+  });
+
+  return null;
+}
+
+export default function Map({
+  latitude,
+  longitude,
+  showUserLocation = true,
+  pois = [],
+  selectedPOI,
+  onPOIPress,
+  onRegionChangeComplete,
+}: MapProps) {
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      onPOIPress?.(poi);
+    },
+    [onPOIPress]
+  );
+
   return (
     <View style={styles.container}>
       <MapContainer
         center={[latitude, longitude]}
         zoom={15}
         style={{ width: '100%', height: '100%' }}
-        zoomControl={true}
+        zoomControl={false}
       >
+        <ZoomControl position="bottomleft" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapController latitude={latitude} longitude={longitude} />
+        <MapEventHandler onRegionChangeComplete={onRegionChangeComplete} />
+
+        {pois.map(poi => (
+          <POIMarker
+            key={poi.id}
+            poi={poi}
+            onPress={handlePOIPress}
+            isSelected={selectedPOI?.id === poi.id}
+          />
+        ))}
+
         {showUserLocation && (
-          <Marker position={[latitude, longitude]} icon={userIcon} />
+          <Marker position={[latitude, longitude]} icon={userIcon} zIndexOffset={1000} />
         )}
       </MapContainer>
     </View>

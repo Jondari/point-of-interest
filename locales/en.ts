@@ -27,6 +27,24 @@ export default {
     errorMessage: "Unable to get your location",
     retry: "Retry",
   },
+  poi: {
+    categories: {
+      monument: "Monuments",
+      museum: "Museums",
+      park: "Parks",
+      restaurant: "Restaurants",
+    },
+    navigate: "Get directions",
+    fetchError: "Unable to load points of interest",
+    noResults: "No points of interest found",
+  },
+  routes: {
+    walking: "Walking",
+    driving: "Driving",
+    transit: "Transit",
+    duration: "Duration",
+    distance: "Distance",
+  },
   settings: {
     language: "Language",
     french: "Français",

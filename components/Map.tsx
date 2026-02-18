@@ -1,13 +1,19 @@
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { UrlTile, Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { colors } from '../constants/theme';
+import { POI } from '../types/poi';
+import POIMarker from './POIMarker';
 
 interface MapProps {
   latitude: number;
   longitude: number;
   showUserLocation?: boolean;
   onMapReady?: () => void;
+  pois?: POI[];
+  selectedPOI?: POI | null;
+  onPOIPress?: (poi: POI) => void;
+  onRegionChangeComplete?: (region: Region) => void;
 }
 
 export default function Map({
@@ -15,20 +21,35 @@ export default function Map({
   longitude,
   showUserLocation = true,
   onMapReady,
+  pois = [],
+  selectedPOI,
+  onPOIPress,
+  onRegionChangeComplete,
 }: MapProps) {
   const mapRef = useRef<MapView>(null);
 
-  const centerOnUser = () => {
-    mapRef.current?.animateToRegion(
-      {
-        latitude,
-        longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      },
-      500
-    );
-  };
+  const handleRegionChangeComplete = useCallback(
+    (region: Region) => {
+      onRegionChangeComplete?.(region);
+    },
+    [onRegionChangeComplete]
+  );
+
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      onPOIPress?.(poi);
+      mapRef.current?.animateToRegion(
+        {
+          latitude: poi.latitude,
+          longitude: poi.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        300
+      );
+    },
+    [onPOIPress]
+  );
 
   return (
     <View style={styles.container}>
@@ -39,10 +60,11 @@ export default function Map({
         initialRegion={{
           latitude,
           longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
         }}
         onMapReady={onMapReady}
+        onRegionChangeComplete={handleRegionChangeComplete}
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
@@ -51,11 +73,22 @@ export default function Map({
           maximumZ={19}
           flipY={false}
         />
+
+        {pois.map(poi => (
+          <POIMarker
+            key={poi.id}
+            poi={poi}
+            onPress={handlePOIPress}
+            isSelected={selectedPOI?.id === poi.id}
+          />
+        ))}
+
         {showUserLocation && (
           <Marker
             coordinate={{ latitude, longitude }}
             title="Vous êtes ici"
             pinColor={colors.primary}
+            zIndex={1000}
           >
             <View style={styles.userMarker}>
               <View style={styles.userMarkerInner} />
@@ -66,8 +99,6 @@ export default function Map({
     </View>
   );
 }
-
-Map.centerOnUser = () => {};
 
 const styles = StyleSheet.create({
   container: {

@@ -1,18 +1,38 @@
+import { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import Map from '../../components/Map';
+import CategoryFilter from '../../components/CategoryFilter';
+import POICard from '../../components/POICard';
 import { useLocation } from '../../hooks/useLocation';
 import { useAuth } from '../../hooks/useAuth';
+import { usePOI } from '../../hooks/usePOI';
 import { changeLanguage } from '../../locales';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
+import { POI } from '../../types/poi';
 
 export default function MapScreen() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { location, isLoading, errorMessage, refreshLocation } = useLocation();
+  const { location, isLoading: locationLoading, errorMessage, refreshLocation } = useLocation();
   const { logout } = useAuth();
+  const {
+    pois,
+    isLoading: poisLoading,
+    filters,
+    selectedPOI,
+    fetchPOIs,
+    toggleCategory,
+    selectPOI,
+  } = usePOI();
+
+  useEffect(() => {
+    if (location) {
+      fetchPOIs(location.latitude, location.longitude);
+    }
+  }, [location, filters.categories, fetchPOIs]);
 
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'fr' ? 'en' : 'fr';
@@ -24,7 +44,27 @@ export default function MapScreen() {
     router.replace('/');
   };
 
-  if (isLoading) {
+  const handlePOIPress = useCallback((poi: POI) => {
+    selectPOI(poi);
+  }, [selectPOI]);
+
+  const handleClosePOI = useCallback(() => {
+    selectPOI(null);
+  }, [selectPOI]);
+
+  const handleNavigateToPOI = useCallback((poi: POI) => {
+    // TODO: Implement navigation to route screen
+    console.log('Navigate to:', poi.name);
+  }, []);
+
+  const handleRegionChange = useCallback(
+    (region: { latitude: number; longitude: number }) => {
+      fetchPOIs(region.latitude, region.longitude);
+    },
+    [fetchPOIs]
+  );
+
+  if (locationLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -58,23 +98,37 @@ export default function MapScreen() {
         latitude={location.latitude}
         longitude={location.longitude}
         showUserLocation={true}
+        pois={pois}
+        selectedPOI={selectedPOI}
+        onPOIPress={handlePOIPress}
+        onRegionChangeComplete={handleRegionChange}
       />
 
       <SafeAreaView style={styles.overlay} pointerEvents="box-none">
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>{t('map.title')}</Text>
-            <View style={styles.headerActions}>
-              <TouchableOpacity style={styles.langButton} onPress={toggleLanguage}>
-                <Text style={styles.langButtonText}>
-                  {i18n.language === 'fr' ? 'EN' : 'FR'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Text style={styles.logoutButtonText}>{t('map.logout')}</Text>
-              </TouchableOpacity>
+        <View style={styles.topSection}>
+          <View style={styles.header}>
+            <View style={styles.headerContent}>
+              <Text style={styles.headerTitle}>{t('map.title')}</Text>
+              <View style={styles.headerActions}>
+                {poisLoading && (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                )}
+                <TouchableOpacity style={styles.langButton} onPress={toggleLanguage}>
+                  <Text style={styles.langButtonText}>
+                    {i18n.language === 'fr' ? 'EN' : 'FR'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                  <Text style={styles.logoutButtonText}>{t('map.logout')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
+
+          <CategoryFilter
+            selectedCategories={filters.categories}
+            onToggleCategory={toggleCategory}
+          />
         </View>
 
         <View style={styles.controls}>
@@ -83,6 +137,16 @@ export default function MapScreen() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+
+      {selectedPOI && (
+        <View style={styles.poiCardContainer}>
+          <POICard
+            poi={selectedPOI}
+            onClose={handleClosePOI}
+            onNavigate={handleNavigateToPOI}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -139,6 +203,10 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'space-between',
+    pointerEvents: 'box-none',
+  },
+  topSection: {
+    pointerEvents: 'box-none',
   },
   header: {
     paddingHorizontal: spacing.md,
@@ -188,7 +256,7 @@ const styles = StyleSheet.create({
   controls: {
     position: 'absolute',
     right: spacing.md,
-    bottom: spacing.xl,
+    bottom: spacing.xl + 150,
     gap: spacing.sm,
   },
   controlButton: {
@@ -206,5 +274,11 @@ const styles = StyleSheet.create({
   },
   controlButtonText: {
     fontSize: 24,
+  },
+  poiCardContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });

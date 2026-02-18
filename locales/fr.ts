@@ -27,6 +27,24 @@ export default {
     errorMessage: "Impossible de récupérer votre position",
     retry: "Réessayer",
   },
+  poi: {
+    categories: {
+      monument: "Monuments",
+      museum: "Musées",
+      park: "Parcs",
+      restaurant: "Restaurants",
+    },
+    navigate: "Itinéraire",
+    fetchError: "Impossible de charger les points d'intérêt",
+    noResults: "Aucun point d'intérêt trouvé",
+  },
+  routes: {
+    walking: "À pied",
+    driving: "En voiture",
+    transit: "Transports",
+    duration: "Durée",
+    distance: "Distance",
+  },
   settings: {
     language: "Langue",
     french: "Français",
