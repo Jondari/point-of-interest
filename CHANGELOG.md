@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/Jondari/point-of-interest/compare/v0.0.0...v0.1.0) (2026-02-18)
+
+
+### Features
+
+* add walking/driving route planning with OSRM and real-time position tracking ([54bdd65](https://github.com/Jondari/point-of-interest/commit/54bdd65685539bb165a8d36367c544ce1041e71f))
+* filter unnamed POIs, auto-stop tracking on arrival ([6446d2f](https://github.com/Jondari/point-of-interest/commit/6446d2f84b3c337ece5c3323a7803bcce8ded1b5))
+
 ## 0.0.0 (2026-02-18)
 
 
