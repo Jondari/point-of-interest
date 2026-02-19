@@ -1,5 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { DangerRenderMode } from '../types/dangerZone';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { DangerRenderMode, IndicatorMeta } from '../types/dangerZone';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../constants/theme';
 
 interface DangerZoneToggleProps {
@@ -7,6 +8,13 @@ interface DangerZoneToggleProps {
   renderMode: DangerRenderMode;
   onToggleVisibility: () => void;
   onToggleMode: () => void;
+  showQPV: boolean;
+  showQRR: boolean;
+  onToggleQPV: () => void;
+  onToggleQRR: () => void;
+  selectedIndicator: string;
+  availableIndicators: IndicatorMeta[];
+  onSelectIndicator: (id: string) => void;
 }
 
 export default function DangerZoneToggle({
@@ -14,7 +22,16 @@ export default function DangerZoneToggle({
   renderMode,
   onToggleVisibility,
   onToggleMode,
+  showQPV,
+  showQRR,
+  onToggleQPV,
+  onToggleQRR,
+  selectedIndicator,
+  availableIndicators,
+  onSelectIndicator,
 }: DangerZoneToggleProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -31,6 +48,49 @@ export default function DangerZoneToggle({
           </Text>
         </TouchableOpacity>
       )}
+
+      <TouchableOpacity
+        style={[styles.labelButton, showQPV && styles.labelButtonActiveBlue]}
+        onPress={onToggleQPV}
+      >
+        <Text style={[styles.labelText, showQPV && styles.labelTextActive]}>QPV</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.labelButton, showQRR && styles.labelButtonActivePurple]}
+        onPress={onToggleQRR}
+      >
+        <Text style={[styles.labelText, showQRR && styles.labelTextActive]}>QRR</Text>
+      </TouchableOpacity>
+
+      {isVisible && (
+        <ScrollView
+          style={styles.indicatorList}
+          contentContainerStyle={styles.indicatorListContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {availableIndicators.map((ind) => (
+            <TouchableOpacity
+              key={ind.id}
+              style={[
+                styles.indicatorChip,
+                selectedIndicator === ind.id && styles.indicatorChipActive,
+              ]}
+              onPress={() => onSelectIndicator(ind.id)}
+            >
+              <Text
+                style={[
+                  styles.indicatorChipText,
+                  selectedIndicator === ind.id && styles.indicatorChipTextActive,
+                ]}
+                numberOfLines={1}
+              >
+                {t(ind.labelKey)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -38,6 +98,7 @@ export default function DangerZoneToggle({
 const styles = StyleSheet.create({
   container: {
     gap: spacing.sm,
+    alignItems: 'center',
   },
   button: {
     width: 48,
@@ -60,5 +121,61 @@ const styles = StyleSheet.create({
   },
   modeText: {
     fontSize: 20,
+  },
+  labelButton: {
+    width: 48,
+    height: 32,
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  labelButtonActiveBlue: {
+    backgroundColor: '#2196F3',
+  },
+  labelButtonActivePurple: {
+    backgroundColor: '#9C27B0',
+  },
+  labelText: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.bold,
+    color: colors.textLight,
+  },
+  labelTextActive: {
+    color: colors.white,
+  },
+  indicatorList: {
+    maxHeight: 200,
+    width: 120,
+  },
+  indicatorListContent: {
+    gap: 4,
+  },
+  indicatorChip: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.sm,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  indicatorChipActive: {
+    backgroundColor: colors.primary,
+  },
+  indicatorChipText: {
+    fontSize: 10,
+    color: colors.textLight,
+  },
+  indicatorChipTextActive: {
+    color: colors.white,
+    fontWeight: fontWeight.semibold,
   },
 });

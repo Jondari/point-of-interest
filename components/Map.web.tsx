@@ -6,11 +6,13 @@ import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
-import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode } from '../types/dangerZone';
+import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker.web';
 import RoutePolyline from './RoutePolyline.web';
 import DangerChoropleth from './DangerChoropleth.web';
 import DangerHeatmap from './DangerHeatmap.web';
+import QPVOverlay from './QPVOverlay.web';
+import QRROverlay from './QRROverlay.web';
 
 interface MapRegion {
   latitude: number;
@@ -34,6 +36,10 @@ interface MapProps {
     communeData: CommuneRenderData[];
     heatmapPoints: HeatmapPoint[];
     config: DangerZoneConfig;
+    qpvData?: QPVFeature[];
+    qrrData?: QRRFeature[];
+    showQPV?: boolean;
+    showQRR?: boolean;
   };
 }
 
@@ -137,6 +143,13 @@ export default function Map({
             points={dangerZoneProps.heatmapPoints}
             config={dangerZoneProps.config}
           />
+        )}
+
+        {dangerZoneProps?.showQPV && dangerZoneProps.qpvData && (
+          <QPVOverlay features={dangerZoneProps.qpvData} />
+        )}
+        {dangerZoneProps?.showQRR && dangerZoneProps.qrrData && (
+          <QRROverlay features={dangerZoneProps.qrrData} />
         )}
 
         {pois.map(poi => (

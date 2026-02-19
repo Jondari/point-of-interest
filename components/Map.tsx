@@ -4,11 +4,13 @@ import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
-import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode } from '../types/dangerZone';
+import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker';
 import RoutePolyline from './RoutePolyline';
 import DangerChoropleth from './DangerChoropleth';
 import DangerHeatmap from './DangerHeatmap';
+import QPVOverlay from './QPVOverlay';
+import QRROverlay from './QRROverlay';
 
 interface MapProps {
   latitude: number;
@@ -26,6 +28,10 @@ interface MapProps {
     communeData: CommuneRenderData[];
     heatmapPoints: HeatmapPoint[];
     config: DangerZoneConfig;
+    qpvData?: QPVFeature[];
+    qrrData?: QRRFeature[];
+    showQPV?: boolean;
+    showQRR?: boolean;
   };
 }
 
@@ -100,6 +106,13 @@ export default function Map({
             points={dangerZoneProps.heatmapPoints}
             config={dangerZoneProps.config}
           />
+        )}
+
+        {dangerZoneProps?.showQPV && dangerZoneProps.qpvData && (
+          <QPVOverlay features={dangerZoneProps.qpvData} />
+        )}
+        {dangerZoneProps?.showQRR && dangerZoneProps.qrrData && (
+          <QRROverlay features={dangerZoneProps.qrrData} />
         )}
 
         {pois.map(poi => (

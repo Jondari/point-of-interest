@@ -1,5 +1,14 @@
-import { IDFCrimeDataset, CommuneRenderData, HeatmapPoint } from '../types/dangerZone';
+import {
+  IDFCrimeDataset,
+  CommuneRenderData,
+  HeatmapPoint,
+  IndicatorMeta,
+  QPVFeature,
+  QRRFeature,
+} from '../types/dangerZone';
 import idfData from '../data/idf-crime-data.json';
+import qpvData from '../data/qpv-idf.json';
+import qrrData from '../data/qrr-idf.json';
 
 const dataset = idfData as unknown as IDFCrimeDataset;
 
@@ -30,43 +39,77 @@ function interpolateColor(t: number): string {
   return 'rgb(215, 48, 39)';
 }
 
-let cachedRenderData: CommuneRenderData[] | null = null;
+const renderDataCache = new Map<string, CommuneRenderData[]>();
+const heatmapCache = new Map<string, HeatmapPoint[]>();
 
-export function getCommuneRenderData(): CommuneRenderData[] {
-  if (cachedRenderData) return cachedRenderData;
+export function getCommuneRenderData(indicatorId: string = 'all'): CommuneRenderData[] {
+  const cached = renderDataCache.get(indicatorId);
+  if (cached) return cached;
 
-  const rates = dataset.communes.map((c) => c.crimeRate).filter((r) => r > 0);
-  const maxRate = Math.max(...rates);
-  const minRate = Math.min(...rates);
+  const withRates = dataset.communes.map((commune) => {
+    const value = commune.indicators[indicatorId] || 0;
+    const crimeRate = commune.population > 0 ? (value / commune.population) * 1000 : 0;
+    return { commune, crimeRate };
+  });
+
+  const rates = withRates.map((c) => c.crimeRate).filter((r) => r > 0);
+  const maxRate = Math.max(...rates, 1);
+  const minRate = Math.min(...rates, 0);
   const range = maxRate - minRate || 1;
 
-  cachedRenderData = dataset.communes.map((commune) => {
-    const normalizedRate = commune.crimeRate > 0 ? (commune.crimeRate - minRate) / range : 0;
+  const result: CommuneRenderData[] = withRates.map(({ commune, crimeRate }) => {
+    const normalizedRate = crimeRate > 0 ? (crimeRate - minRate) / range : 0;
     return {
       ...commune,
+      crimeRate: Math.round(crimeRate * 100) / 100,
       fillColor: interpolateColor(normalizedRate),
       normalizedRate,
     };
   });
 
-  return cachedRenderData;
+  renderDataCache.set(indicatorId, result);
+  return result;
 }
 
-let cachedHeatmapPoints: HeatmapPoint[] | null = null;
+export function getHeatmapPoints(indicatorId: string = 'all'): HeatmapPoint[] {
+  const cached = heatmapCache.get(indicatorId);
+  if (cached) return cached;
 
-export function getHeatmapPoints(): HeatmapPoint[] {
-  if (cachedHeatmapPoints) return cachedHeatmapPoints;
-
-  const renderData = getCommuneRenderData();
-  cachedHeatmapPoints = renderData.map((c) => ({
+  const renderData = getCommuneRenderData(indicatorId);
+  const result = renderData.map((c) => ({
     latitude: c.centerLat,
     longitude: c.centerLon,
     weight: c.normalizedRate,
   }));
 
-  return cachedHeatmapPoints;
+  heatmapCache.set(indicatorId, result);
+  return result;
+}
+
+export function getAvailableIndicators(): IndicatorMeta[] {
+  return dataset.availableIndicators;
 }
 
 export function getDataYear(): number {
   return dataset.year;
+}
+
+export function getQPVData(): QPVFeature[] {
+  const features = (qpvData as any).features || [];
+  return features.map((f: any) => ({
+    code: f.properties.code,
+    nom: f.properties.nom,
+    commune: f.properties.commune,
+    geometry: f.geometry,
+  }));
+}
+
+export function getQRRData(): QRRFeature[] {
+  const features = (qrrData as any).features || [];
+  return features.map((f: any) => ({
+    code: f.properties.code,
+    nom: f.properties.nom,
+    commune: f.properties.commune,
+    geometry: f.geometry,
+  }));
 }

@@ -25,7 +25,11 @@ components/
   DangerChoropleth.web.tsx # Web choropleth (GeoJSON + tooltips)
   DangerHeatmap.tsx        # Native heatmap (circles)
   DangerHeatmap.web.tsx    # Web heatmap (leaflet.heat)
-  DangerZoneToggle.tsx     # Danger zone toggle controls
+  QPVOverlay.tsx           # Native QPV polygons
+  QPVOverlay.web.tsx       # Web QPV (GeoJSON + tooltips)
+  QRROverlay.tsx           # Native QRR polygons
+  QRROverlay.web.tsx       # Web QRR (GeoJSON + tooltips)
+  DangerZoneToggle.tsx     # Layer controls (SSMSI, QPV, QRR, indicators)
 
 hooks/
   useAuth.ts               # Authentication state
@@ -50,7 +54,9 @@ types/
   dangerZone.ts            # Commune, heatmap and config types
 
 data/
-  idf-crime-data.json      # Embedded IDF crime dataset (~0.92 MB)
+  idf-crime-data.json      # Embedded IDF crime dataset (~1.1 MB, 1285 communes)
+  qpv-idf.json             # QPV polygons for IDF (298 zones)
+  qrr-idf.json             # QRR polygons for IDF (16 zones)
 
 scripts/
   prepare-crime-data.ts    # Data pipeline (SSMSI + geo + INSEE)
@@ -69,8 +75,8 @@ locales/
 
 The app uses React Native's platform extension resolution to serve different map implementations:
 
-- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx`, `RoutePolyline.tsx`, `DangerChoropleth.tsx` and `DangerHeatmap.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
-- **Web**: `Map.web.tsx`, `POIMarker.web.tsx`, `RoutePolyline.web.tsx`, `DangerChoropleth.web.tsx` and `DangerHeatmap.web.tsx` use `react-leaflet` with Leaflet's tile layer.
+- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx`, `RoutePolyline.tsx`, `DangerChoropleth.tsx`, `DangerHeatmap.tsx`, `QPVOverlay.tsx` and `QRROverlay.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
+- **Web**: `Map.web.tsx`, `POIMarker.web.tsx`, `RoutePolyline.web.tsx`, `DangerChoropleth.web.tsx`, `DangerHeatmap.web.tsx`, `QPVOverlay.web.tsx` and `QRROverlay.web.tsx` use `react-leaflet` with Leaflet's tile layer.
 
 Metro/Expo automatically resolves `.web.tsx` files for the web platform.
 

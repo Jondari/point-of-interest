@@ -54,10 +54,19 @@ export default function MapScreen() {
   const {
     isVisible: dangerVisible,
     renderMode: dangerRenderMode,
+    selectedIndicator,
+    showQPV,
+    showQRR,
     communeData,
     heatmapPoints,
+    availableIndicators,
+    qpvData,
+    qrrData,
     toggleVisibility: toggleDangerVisibility,
     toggleRenderMode: toggleDangerRenderMode,
+    setIndicator,
+    toggleQPV,
+    toggleQRR,
   } = useDangerZones();
   const {
     route,
@@ -180,6 +189,10 @@ export default function MapScreen() {
           communeData,
           heatmapPoints,
           config: DEFAULT_DANGER_ZONE_CONFIG,
+          qpvData,
+          qrrData,
+          showQPV,
+          showQRR,
         }}
       />
 
@@ -221,6 +234,13 @@ export default function MapScreen() {
             renderMode={dangerRenderMode}
             onToggleVisibility={toggleDangerVisibility}
             onToggleMode={toggleDangerRenderMode}
+            showQPV={showQPV}
+            showQRR={showQRR}
+            onToggleQPV={toggleQPV}
+            onToggleQRR={toggleQRR}
+            selectedIndicator={selectedIndicator}
+            availableIndicators={availableIndicators}
+            onSelectIndicator={setIndicator}
           />
           <TouchableOpacity style={styles.controlButton} onPress={refreshLocation}>
             <Text style={styles.controlButtonText}>📍</Text>

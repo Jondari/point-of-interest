@@ -3,13 +3,17 @@ export interface CommuneGeometry {
   coordinates: number[][][] | number[][][][];
 }
 
+export interface IndicatorMeta {
+  id: string;
+  labelKey: string;
+}
+
 export interface CommuneFeature {
   codeCommune: string;
   nomCommune: string;
   department: string;
   population: number;
-  totalCrimes: number;
-  crimeRate: number;
+  indicators: Record<string, number>;
   centerLat: number;
   centerLon: number;
   geometry: CommuneGeometry;
@@ -18,12 +22,14 @@ export interface CommuneFeature {
 export interface IDFCrimeDataset {
   generatedAt: string;
   year: number;
+  availableIndicators: IndicatorMeta[];
   communes: CommuneFeature[];
 }
 
 export interface CommuneRenderData extends CommuneFeature {
   fillColor: string;
   normalizedRate: number;
+  crimeRate: number;
 }
 
 export interface HeatmapPoint {
@@ -45,3 +51,17 @@ export const DEFAULT_DANGER_ZONE_CONFIG: DangerZoneConfig = {
 };
 
 export type DangerRenderMode = 'choropleth' | 'heatmap';
+
+export interface QPVFeature {
+  code: string;
+  nom: string;
+  commune: string;
+  geometry: CommuneGeometry;
+}
+
+export interface QRRFeature {
+  code: string;
+  nom: string;
+  commune: string;
+  geometry: CommuneGeometry;
+}
