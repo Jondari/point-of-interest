@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/Jondari/point-of-interest/compare/v0.1.0...v0.2.0) (2026-02-19)
+
+
+### Features
+
+* add danger zones with choropleth and heatmap rendering ([403702e](https://github.com/Jondari/point-of-interest/commit/403702e109369b31c164bdd6dd608b68c0322749))
+* add Paris arrondissements, QPV/QRR overlays and multi-indicator selection ([8892258](https://github.com/Jondari/point-of-interest/commit/889225819c82450bc00e6dded77a77dd4259296b))
+
 ## [0.1.0](https://github.com/Jondari/point-of-interest/compare/v0.0.0...v0.1.0) (2026-02-18)
 
 
