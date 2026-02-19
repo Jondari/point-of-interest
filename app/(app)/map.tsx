@@ -8,10 +8,13 @@ import CategoryFilter from '../../components/CategoryFilter';
 import POICard from '../../components/POICard';
 import TransportModeSelector from '../../components/TransportModeSelector';
 import RouteDirections from '../../components/RouteDirections';
+import DangerZoneToggle from '../../components/DangerZoneToggle';
 import { useLocation } from '../../hooks/useLocation';
 import { useAuth } from '../../hooks/useAuth';
 import { usePOI } from '../../hooks/usePOI';
 import { useRoute } from '../../hooks/useRoute';
+import { useDangerZones } from '../../hooks/useDangerZones';
+import { DEFAULT_DANGER_ZONE_CONFIG } from '../../types/dangerZone';
 import { changeLanguage } from '../../locales';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
 import { POI } from '../../types/poi';
@@ -48,6 +51,14 @@ export default function MapScreen() {
     toggleCategory,
     selectPOI,
   } = usePOI();
+  const {
+    isVisible: dangerVisible,
+    renderMode: dangerRenderMode,
+    communeData,
+    heatmapPoints,
+    toggleVisibility: toggleDangerVisibility,
+    toggleRenderMode: toggleDangerRenderMode,
+  } = useDangerZones();
   const {
     route,
     isLoading: routeLoading,
@@ -163,6 +174,13 @@ export default function MapScreen() {
         onPOIPress={handlePOIPress}
         onRegionChangeComplete={handleRegionChange}
         route={route}
+        dangerZoneProps={{
+          isVisible: dangerVisible,
+          renderMode: dangerRenderMode,
+          communeData,
+          heatmapPoints,
+          config: DEFAULT_DANGER_ZONE_CONFIG,
+        }}
       />
 
       <SafeAreaView style={styles.overlay} pointerEvents="box-none">
@@ -198,6 +216,12 @@ export default function MapScreen() {
               <Text style={styles.controlButtonText}>✕</Text>
             </TouchableOpacity>
           )}
+          <DangerZoneToggle
+            isVisible={dangerVisible}
+            renderMode={dangerRenderMode}
+            onToggleVisibility={toggleDangerVisibility}
+            onToggleMode={toggleDangerRenderMode}
+          />
           <TouchableOpacity style={styles.controlButton} onPress={refreshLocation}>
             <Text style={styles.controlButtonText}>📍</Text>
           </TouchableOpacity>

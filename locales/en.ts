@@ -49,6 +49,16 @@ export default {
     clear: "Clear route",
     steps: "Steps",
   },
+  dangerZones: {
+    toggle: "Danger zones",
+    choropleth: "Map",
+    heatmap: "Heat",
+    legendTitle: "Crime rate (per 1,000 inhabitants)",
+    legendLow: "Low",
+    legendHigh: "High",
+    dataYear: "Data: {{year}}",
+    dataSource: "Source: SSMSI / data.gouv.fr",
+  },
   settings: {
     language: "Language",
     french: "Français",

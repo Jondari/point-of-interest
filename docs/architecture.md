@@ -21,12 +21,18 @@ components/
   RoutePolyline.web.tsx    # Web route path
   TransportModeSelector.tsx # Walking/driving mode picker
   RouteDirections.tsx      # Step-by-step directions panel
+  DangerChoropleth.tsx     # Native choropleth polygons
+  DangerChoropleth.web.tsx # Web choropleth (GeoJSON + tooltips)
+  DangerHeatmap.tsx        # Native heatmap (circles)
+  DangerHeatmap.web.tsx    # Web heatmap (leaflet.heat)
+  DangerZoneToggle.tsx     # Danger zone toggle controls
 
 hooks/
   useAuth.ts               # Authentication state
   useLocation.ts           # GPS permission, position and tracking
   usePOI.ts                # POI fetching, filtering and selection
   useRoute.ts              # Route calculation and state
+  useDangerZones.ts        # Danger zone visibility, render mode and data
 
 stores/
   authStore.ts             # Auth persistence (AsyncStorage)
@@ -36,11 +42,18 @@ stores/
 services/
   overpassApi.ts           # Overpass API client (OpenStreetMap)
   osrmApi.ts               # OSRM routing client (walking/driving)
+  crimeDataService.ts      # Crime data loading and color computation
 
 types/
   poi.ts                   # POI, categories, filters
   route.ts                 # Route, steps, transport modes
-  dangerZone.ts            # Heatmap types (upcoming)
+  dangerZone.ts            # Commune, heatmap and config types
+
+data/
+  idf-crime-data.json      # Embedded IDF crime dataset (~0.92 MB)
+
+scripts/
+  prepare-crime-data.ts    # Data pipeline (SSMSI + geo + INSEE)
 
 constants/
   api.ts                   # API URLs, Paris coordinates, defaults
@@ -56,8 +69,8 @@ locales/
 
 The app uses React Native's platform extension resolution to serve different map implementations:
 
-- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx` and `RoutePolyline.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
-- **Web**: `Map.web.tsx`, `POIMarker.web.tsx` and `RoutePolyline.web.tsx` use `react-leaflet` with Leaflet's tile layer.
+- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx`, `RoutePolyline.tsx`, `DangerChoropleth.tsx` and `DangerHeatmap.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
+- **Web**: `Map.web.tsx`, `POIMarker.web.tsx`, `RoutePolyline.web.tsx`, `DangerChoropleth.web.tsx` and `DangerHeatmap.web.tsx` use `react-leaflet` with Leaflet's tile layer.
 
 Metro/Expo automatically resolves `.web.tsx` files for the web platform.
 
@@ -66,7 +79,7 @@ Metro/Expo automatically resolves `.web.tsx` files for the web platform.
 The app does not use Redux or Zustand. State is managed through:
 
 1. **Stores** — Plain objects with async methods wrapping `AsyncStorage`. They handle persistence only (no reactive state).
-2. **Hooks** — Custom hooks (`useAuth`, `useLocation`, `usePOI`, `useRoute`) hold reactive state via `useState` and consume stores for persistence. `useRoute` has no store — route state is transient.
+2. **Hooks** — Custom hooks (`useAuth`, `useLocation`, `usePOI`, `useRoute`, `useDangerZones`) hold reactive state via `useState` and consume stores for persistence. `useRoute` and `useDangerZones` have no store — their state is transient. `useDangerZones` loads embedded data once via `useMemo`.
 
 ```
 AsyncStorage <-- stores (read/write) <-- hooks (reactive state) <-- components (UI)

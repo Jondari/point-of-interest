@@ -49,6 +49,16 @@ export default {
     clear: "Effacer l'itinéraire",
     steps: "Étapes",
   },
+  dangerZones: {
+    toggle: "Zones dangereuses",
+    choropleth: "Carte",
+    heatmap: "Chaleur",
+    legendTitle: "Taux de criminalité (pour 1 000 habitants)",
+    legendLow: "Faible",
+    legendHigh: "Élevé",
+    dataYear: "Données : {{year}}",
+    dataSource: "Source : SSMSI / data.gouv.fr",
+  },
   settings: {
     language: "Langue",
     french: "Français",

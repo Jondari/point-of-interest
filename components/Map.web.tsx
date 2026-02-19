@@ -6,8 +6,11 @@ import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
+import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode } from '../types/dangerZone';
 import POIMarker from './POIMarker.web';
 import RoutePolyline from './RoutePolyline.web';
+import DangerChoropleth from './DangerChoropleth.web';
+import DangerHeatmap from './DangerHeatmap.web';
 
 interface MapRegion {
   latitude: number;
@@ -25,6 +28,13 @@ interface MapProps {
   onPOIPress?: (poi: POI) => void;
   onRegionChangeComplete?: (region: MapRegion) => void;
   route?: Route | null;
+  dangerZoneProps?: {
+    isVisible: boolean;
+    renderMode: DangerRenderMode;
+    communeData: CommuneRenderData[];
+    heatmapPoints: HeatmapPoint[];
+    config: DangerZoneConfig;
+  };
 }
 
 const userIcon = L.divIcon({
@@ -91,6 +101,7 @@ export default function Map({
   onPOIPress,
   onRegionChangeComplete,
   route = null,
+  dangerZoneProps,
 }: MapProps) {
   const handlePOIPress = useCallback(
     (poi: POI) => {
@@ -114,6 +125,19 @@ export default function Map({
         />
         <MapController latitude={latitude} longitude={longitude} />
         <MapEventHandler onRegionChangeComplete={onRegionChangeComplete} />
+
+        {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'choropleth' && (
+          <DangerChoropleth
+            communes={dangerZoneProps.communeData}
+            opacity={dangerZoneProps.config.opacity}
+          />
+        )}
+        {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'heatmap' && (
+          <DangerHeatmap
+            points={dangerZoneProps.heatmapPoints}
+            config={dangerZoneProps.config}
+          />
+        )}
 
         {pois.map(poi => (
           <POIMarker

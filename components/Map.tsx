@@ -4,8 +4,11 @@ import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
+import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode } from '../types/dangerZone';
 import POIMarker from './POIMarker';
 import RoutePolyline from './RoutePolyline';
+import DangerChoropleth from './DangerChoropleth';
+import DangerHeatmap from './DangerHeatmap';
 
 interface MapProps {
   latitude: number;
@@ -17,6 +20,13 @@ interface MapProps {
   onPOIPress?: (poi: POI) => void;
   onRegionChangeComplete?: (region: Region) => void;
   route?: Route | null;
+  dangerZoneProps?: {
+    isVisible: boolean;
+    renderMode: DangerRenderMode;
+    communeData: CommuneRenderData[];
+    heatmapPoints: HeatmapPoint[];
+    config: DangerZoneConfig;
+  };
 }
 
 export default function Map({
@@ -29,6 +39,7 @@ export default function Map({
   onPOIPress,
   onRegionChangeComplete,
   route = null,
+  dangerZoneProps,
 }: MapProps) {
   const mapRef = useRef<MapView>(null);
 
@@ -77,6 +88,19 @@ export default function Map({
           maximumZ={19}
           flipY={false}
         />
+
+        {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'choropleth' && (
+          <DangerChoropleth
+            communes={dangerZoneProps.communeData}
+            opacity={dangerZoneProps.config.opacity}
+          />
+        )}
+        {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'heatmap' && (
+          <DangerHeatmap
+            points={dangerZoneProps.heatmapPoints}
+            config={dangerZoneProps.config}
+          />
+        )}
 
         {pois.map(poi => (
           <POIMarker
