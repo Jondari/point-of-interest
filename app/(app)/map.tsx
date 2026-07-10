@@ -94,6 +94,11 @@ export default function MapScreen() {
     router.replace('/');
   };
 
+  const handleHome = () => {
+    handleClearRoute();
+    router.replace('/(app)');
+  };
+
   const handlePOIPress = useCallback((poi: POI) => {
     selectPOI(poi);
   }, [selectPOI]);
@@ -205,6 +210,9 @@ export default function MapScreen() {
                 {poisLoading && (
                   <ActivityIndicator size="small" color={colors.primary} />
                 )}
+                <TouchableOpacity style={styles.langButton} onPress={handleHome}>
+                  <Text style={styles.langButtonText}>{t('map.home')}</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.langButton} onPress={toggleLanguage}>
                   <Text style={styles.langButtonText}>
                     {i18n.language === 'fr' ? 'EN' : 'FR'}

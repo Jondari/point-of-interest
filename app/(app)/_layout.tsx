@@ -33,7 +33,10 @@ export default function AppLayout() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
+      <Stack.Screen name="index" />
       <Stack.Screen name="map" />
+      <Stack.Screen name="directory/index" />
+      <Stack.Screen name="directory/[poiId]" />
     </Stack>
   );
 }

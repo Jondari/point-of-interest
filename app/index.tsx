@@ -25,13 +25,13 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace('/(app)/map');
+      router.replace('/(app)');
     }
   }, [isAuthenticated, isLoading, router]);
 
   const handleGuestLogin = async () => {
     await loginAsGuest();
-    router.replace('/(app)/map');
+    router.replace('/(app)');
   };
 
   if (isLoading) {
