@@ -43,3 +43,7 @@ data/_tmp_*
 # generated native folders
 /ios
 /android
+
+# Local development tools
+.codex
+.idea/
