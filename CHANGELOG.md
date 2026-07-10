@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/Jondari/point-of-interest/compare/v0.2.0...v0.2.1) (2026-07-10)
+
+
+### Bug Fixes
+
+* **maps:** configure Google Maps API key for Android ([5ba5c8b](https://github.com/Jondari/point-of-interest/commit/5ba5c8b861506a81c125cab201dfc8cfcd58b965))
+
 ## [0.2.0](https://github.com/Jondari/point-of-interest/compare/v0.1.0...v0.2.0) (2026-02-19)
 
 
