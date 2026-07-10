@@ -1,4 +1,8 @@
 export default {
+  common: {
+    close: "Fermer",
+    dismiss: "Masquer",
+  },
   login: {
     title: "Point d'Intérêt",
     subtitle: "Découvrez les lieux incroyables autour de vous",
@@ -39,6 +43,7 @@ export default {
     errorTitle: "Position non disponible",
     errorMessage: "Impossible de récupérer votre position",
     retry: "Réessayer",
+    refreshLocation: "Actualiser la position",
   },
   directory: {
     title: "Annuaire hors ligne",
@@ -84,6 +89,8 @@ export default {
       restaurant: "Restaurants",
     },
     navigate: "Itinéraire",
+    call: "Appeler",
+    openWebsite: "Ouvrir le site web",
     fetchError: "Impossible de charger les points d'intérêt",
     noResults: "Aucun point d'intérêt trouvé",
   },
@@ -111,6 +118,7 @@ export default {
     qrr: "QRR",
     qpvLabel: "Quartiers prioritaires",
     qrrLabel: "Quartiers de reconquête républicaine",
+    loadError: "Impossible de charger les couches de sécurité",
     indicators: {
       all: "Tous les faits",
       burglary: "Cambriolages",
@@ -132,6 +140,7 @@ export default {
   },
   settings: {
     language: "Langue",
+    changeLanguage: "Changer de langue",
     french: "Français",
     english: "English",
   },

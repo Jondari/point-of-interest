@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { colors } from '../constants/theme';
@@ -11,6 +11,7 @@ import DangerChoropleth from './DangerChoropleth';
 import DangerHeatmap from './DangerHeatmap';
 import QPVOverlay from './QPVOverlay';
 import QRROverlay from './QRROverlay';
+import { filterCommunesByViewport, filterHeatmapByViewport } from '../utils/mapViewport';
 
 interface MapProps {
   latitude: number;
@@ -25,6 +26,7 @@ interface MapProps {
   dangerZoneProps?: {
     isVisible: boolean;
     renderMode: DangerRenderMode;
+    selectedIndicator: string;
     communeData: CommuneRenderData[];
     heatmapPoints: HeatmapPoint[];
     config: DangerZoneConfig;
@@ -48,9 +50,25 @@ export default function Map({
   dangerZoneProps,
 }: MapProps) {
   const mapRef = useRef<MapView>(null);
+  const [visibleRegion, setVisibleRegion] = useState<Region>({
+    latitude,
+    longitude,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  });
+
+  const visibleCommunes = useMemo(
+    () => filterCommunesByViewport(dangerZoneProps?.communeData ?? [], visibleRegion),
+    [dangerZoneProps?.communeData, visibleRegion]
+  );
+  const visibleHeatmapPoints = useMemo(
+    () => filterHeatmapByViewport(dangerZoneProps?.heatmapPoints ?? [], visibleRegion),
+    [dangerZoneProps?.heatmapPoints, visibleRegion]
+  );
 
   const handleRegionChangeComplete = useCallback(
     (region: Region) => {
+      setVisibleRegion(region);
       onRegionChangeComplete?.(region);
     },
     [onRegionChangeComplete]
@@ -97,13 +115,13 @@ export default function Map({
 
         {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'choropleth' && (
           <DangerChoropleth
-            communes={dangerZoneProps.communeData}
+            communes={visibleCommunes}
             opacity={dangerZoneProps.config.opacity}
           />
         )}
         {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'heatmap' && (
           <DangerHeatmap
-            points={dangerZoneProps.heatmapPoints}
+            points={visibleHeatmapPoints}
             config={dangerZoneProps.config}
           />
         )}

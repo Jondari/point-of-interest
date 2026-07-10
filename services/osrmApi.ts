@@ -68,7 +68,8 @@ function parseGeometry(geometry: OSRMGeometry): RoutePoint[] {
 export async function fetchRoute(
   from: RoutePoint,
   to: RoutePoint,
-  mode: TransportMode
+  mode: TransportMode,
+  signal?: AbortSignal
 ): Promise<Route> {
   const baseUrl = getBaseUrl(mode);
   const coordinates = `${from.longitude},${from.latitude};${to.longitude},${to.latitude}`;
@@ -76,10 +77,16 @@ export async function fetchRoute(
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  const handleExternalAbort = () => controller.abort();
+
+  if (signal?.aborted) {
+    controller.abort();
+  } else {
+    signal?.addEventListener('abort', handleExternalAbort, { once: true });
+  }
 
   try {
     const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`OSRM API error: ${response.status}`);
@@ -101,10 +108,12 @@ export async function fetchRoute(
       mode,
     };
   } catch (error) {
-    clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('Request timeout');
+      throw new Error(signal?.aborted ? 'Request cancelled' : 'Request timeout');
     }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener('abort', handleExternalAbort);
   }
 }

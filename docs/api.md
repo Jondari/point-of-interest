@@ -34,7 +34,7 @@ Converts a center point and radius (default: 5000m) into a `BoundingBox` for Ove
 
 ### Unnamed POI filtering
 
-By default, POIs without a name are excluded from results (many monuments lack names in OSM). This is controlled by the `SHOW_UNNAMED_POI` environment variable (see `.env.sample`).
+By default, POIs without a name are excluded from results (many monuments lack names in OSM). This is controlled by the `EXPO_PUBLIC_SHOW_UNNAMED_POI` environment variable (see `.env.sample`). Expo embeds public variables in the client bundle, so this value must not contain a secret.
 
 ### Request handling
 
@@ -61,4 +61,4 @@ See `.env.sample` for available configuration:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SHOW_UNNAMED_POI` | `false` | Show POIs that have no name in OpenStreetMap |
+| `EXPO_PUBLIC_SHOW_UNNAMED_POI` | `false` | Show POIs that have no name in OpenStreetMap |

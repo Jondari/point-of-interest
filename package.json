@@ -11,6 +11,9 @@
     "release:patch": "standard-version --release-as patch",
     "release:minor": "standard-version --release-as minor",
     "release:major": "standard-version --release-as major",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
+    "test:watch": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
+    "typecheck": "tsc --noEmit",
     "prepare:crime-data": "ts-node --esm scripts/prepare-crime-data.ts"
   },
   "dependencies": {
@@ -39,18 +42,26 @@
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^13.3.3",
     "@turf/centroid": "^7.3.4",
     "@turf/simplify": "^7.3.4",
+    "@types/jest": "29.5.14",
     "@types/leaflet": "^1.9.21",
     "@types/leaflet.heat": "^0.2.5",
     "@types/react": "~19.1.0",
     "@types/shpjs": "^3.4.7",
     "csv-parse": "^6.1.0",
+    "jest": "~29.7.0",
+    "jest-expo": "~54.0.17",
     "jszip": "^3.10.1",
+    "react-test-renderer": "^19.1.0",
     "shpjs": "^6.2.0",
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "private": true
 }

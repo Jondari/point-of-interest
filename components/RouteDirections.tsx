@@ -39,7 +39,12 @@ export default function RouteDirections({ route, onClose }: RouteDirectionsProps
             {formatDuration(route.totalDuration)}
           </Text>
         </View>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t('routes.clear')}
+        >
           <Text style={styles.closeText}>✕</Text>
         </TouchableOpacity>
       </View>

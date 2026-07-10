@@ -33,6 +33,7 @@ interface MapProps {
   dangerZoneProps?: {
     isVisible: boolean;
     renderMode: DangerRenderMode;
+    selectedIndicator: string;
     communeData: CommuneRenderData[];
     heatmapPoints: HeatmapPoint[];
     config: DangerZoneConfig;
@@ -136,6 +137,7 @@ export default function Map({
           <DangerChoropleth
             communes={dangerZoneProps.communeData}
             opacity={dangerZoneProps.config.opacity}
+            dataKey={dangerZoneProps.selectedIndicator}
           />
         )}
         {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'heatmap' && (

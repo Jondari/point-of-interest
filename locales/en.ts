@@ -1,4 +1,8 @@
 export default {
+  common: {
+    close: "Close",
+    dismiss: "Dismiss",
+  },
   login: {
     title: "Point of Interest",
     subtitle: "Discover incredible places around you",
@@ -39,6 +43,7 @@ export default {
     errorTitle: "Location unavailable",
     errorMessage: "Unable to get your location",
     retry: "Retry",
+    refreshLocation: "Refresh location",
   },
   directory: {
     title: "Offline directory",
@@ -84,6 +89,8 @@ export default {
       restaurant: "Restaurants",
     },
     navigate: "Get directions",
+    call: "Call",
+    openWebsite: "Open website",
     fetchError: "Unable to load points of interest",
     noResults: "No points of interest found",
   },
@@ -111,6 +118,7 @@ export default {
     qrr: "QRR",
     qpvLabel: "Priority neighborhoods",
     qrrLabel: "Republican reconquest zones",
+    loadError: "Unable to load safety layers",
     indicators: {
       all: "All crimes",
       burglary: "Burglary",
@@ -132,6 +140,7 @@ export default {
   },
   settings: {
     language: "Language",
+    changeLanguage: "Change language",
     french: "Français",
     english: "English",
   },

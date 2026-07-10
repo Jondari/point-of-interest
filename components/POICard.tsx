@@ -39,7 +39,12 @@ export default function POICard({ poi, onClose, onNavigate }: POICardProps) {
             <Text style={styles.category}>{t(config.labelKey)}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.close')}
+        >
           <Text style={styles.closeText}>✕</Text>
         </TouchableOpacity>
       </View>
@@ -59,14 +64,24 @@ export default function POICard({ poi, onClose, onNavigate }: POICardProps) {
       )}
 
       {poi.phone && (
-        <TouchableOpacity style={styles.infoRow} onPress={handlePhone}>
+        <TouchableOpacity
+          style={styles.infoRow}
+          onPress={handlePhone}
+          accessibilityRole="link"
+          accessibilityLabel={`${t('poi.call')} ${poi.phone}`}
+        >
           <Text style={styles.infoIcon}>📞</Text>
           <Text style={[styles.infoText, styles.link]}>{poi.phone}</Text>
         </TouchableOpacity>
       )}
 
       {poi.website && (
-        <TouchableOpacity style={styles.infoRow} onPress={handleWebsite}>
+        <TouchableOpacity
+          style={styles.infoRow}
+          onPress={handleWebsite}
+          accessibilityRole="link"
+          accessibilityLabel={t('poi.openWebsite')}
+        >
           <Text style={styles.infoIcon}>🌐</Text>
           <Text style={[styles.infoText, styles.link]} numberOfLines={1}>
             {poi.website}
@@ -78,6 +93,8 @@ export default function POICard({ poi, onClose, onNavigate }: POICardProps) {
         <TouchableOpacity
           style={styles.navigateButton}
           onPress={() => onNavigate(poi)}
+          accessibilityRole="button"
+          accessibilityLabel={t('poi.navigate')}
         >
           <Text style={styles.navigateButtonText}>{t('poi.navigate')}</Text>
         </TouchableOpacity>

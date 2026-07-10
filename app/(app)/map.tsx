@@ -21,6 +21,7 @@ import { POI } from '../../types/poi';
 import { RoutePoint } from '../../types/route';
 
 const ARRIVAL_THRESHOLD_METERS = 30;
+const ROUTE_RECALCULATION_THRESHOLD_METERS = 50;
 
 function getDistanceMeters(
   lat1: number, lon1: number,
@@ -41,6 +42,7 @@ export default function MapScreen() {
   const { t, i18n } = useTranslation();
   const { location, isLoading: locationLoading, errorMessage, refreshLocation, startWatching, stopWatching } = useLocation();
   const routeDestinationRef = useRef<RoutePoint | null>(null);
+  const lastRouteOriginRef = useRef<RoutePoint | null>(null);
   const { logout } = useAuth();
   const {
     pois,
@@ -50,6 +52,8 @@ export default function MapScreen() {
     fetchPOIs,
     toggleCategory,
     selectPOI,
+    error: poiError,
+    clearError: clearPOIError,
   } = usePOI();
   const {
     isVisible: dangerVisible,
@@ -62,11 +66,14 @@ export default function MapScreen() {
     availableIndicators,
     qpvData,
     qrrData,
+    isLoading: dangerLayerLoading,
+    error: dangerLayerError,
     toggleVisibility: toggleDangerVisibility,
     toggleRenderMode: toggleDangerRenderMode,
     setIndicator,
     toggleQPV,
     toggleQRR,
+    clearError: clearDangerLayerError,
   } = useDangerZones();
   const {
     route,
@@ -107,19 +114,23 @@ export default function MapScreen() {
     selectPOI(null);
   }, [selectPOI]);
 
-  const handleNavigateToPOI = useCallback((poi: POI) => {
+  const handleNavigateToPOI = useCallback(async (poi: POI) => {
     if (!location) return;
     const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
     const to: RoutePoint = { latitude: poi.latitude, longitude: poi.longitude };
     routeDestinationRef.current = to;
-    calculateRoute(from, to);
+    lastRouteOriginRef.current = from;
     selectPOI(null);
-    startWatching();
+    const result = await calculateRoute(from, to);
+    if (result && routeDestinationRef.current === to) {
+      await startWatching();
+    }
   }, [location, calculateRoute, selectPOI, startWatching]);
 
   const handleClearRoute = useCallback(() => {
     clearRoute();
     routeDestinationRef.current = null;
+    lastRouteOriginRef.current = null;
     stopWatching();
   }, [clearRoute, stopWatching]);
 
@@ -139,8 +150,29 @@ export default function MapScreen() {
     }
 
     const from: RoutePoint = { latitude: location.latitude, longitude: location.longitude };
+    const lastOrigin = lastRouteOriginRef.current;
+    if (lastOrigin) {
+      const distanceSinceLastRoute = getDistanceMeters(
+        lastOrigin.latitude,
+        lastOrigin.longitude,
+        from.latitude,
+        from.longitude
+      );
+
+      if (distanceSinceLastRoute < ROUTE_RECALCULATION_THRESHOLD_METERS) {
+        return;
+      }
+    }
+
+    lastRouteOriginRef.current = from;
     calculateRoute(from, dest);
   }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (routeError) {
+      stopWatching();
+    }
+  }, [routeError, stopWatching]);
 
   const handleRegionChange = useCallback(
     (region: { latitude: number; longitude: number }) => {
@@ -169,7 +201,12 @@ export default function MapScreen() {
           <Text style={styles.errorMessage}>
             {errorMessage ? t(errorMessage) : t('map.errorMessage')}
           </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={refreshLocation}>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={refreshLocation}
+            accessibilityRole="button"
+            accessibilityLabel={t('map.retry')}
+          >
             <Text style={styles.retryButtonText}>{t('map.retry')}</Text>
           </TouchableOpacity>
         </View>
@@ -191,6 +228,7 @@ export default function MapScreen() {
         dangerZoneProps={{
           isVisible: dangerVisible,
           renderMode: dangerRenderMode,
+          selectedIndicator,
           communeData,
           heatmapPoints,
           config: DEFAULT_DANGER_ZONE_CONFIG,
@@ -210,15 +248,30 @@ export default function MapScreen() {
                 {poisLoading && (
                   <ActivityIndicator size="small" color={colors.primary} />
                 )}
-                <TouchableOpacity style={styles.langButton} onPress={handleHome}>
+                <TouchableOpacity
+                  style={styles.langButton}
+                  onPress={handleHome}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('map.home')}
+                >
                   <Text style={styles.langButtonText}>{t('map.home')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.langButton} onPress={toggleLanguage}>
+                <TouchableOpacity
+                  style={styles.langButton}
+                  onPress={toggleLanguage}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('settings.changeLanguage')}
+                >
                   <Text style={styles.langButtonText}>
                     {i18n.language === 'fr' ? 'EN' : 'FR'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <TouchableOpacity
+                  style={styles.logoutButton}
+                  onPress={handleLogout}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('map.logout')}
+                >
                   <Text style={styles.logoutButtonText}>{t('map.logout')}</Text>
                 </TouchableOpacity>
               </View>
@@ -229,11 +282,38 @@ export default function MapScreen() {
             selectedCategories={filters.categories}
             onToggleCategory={toggleCategory}
           />
+          {poiError && (
+            <TouchableOpacity
+              style={styles.poiErrorBanner}
+              onPress={clearPOIError}
+              accessibilityRole="button"
+              accessibilityLabel={`${t(poiError)}. ${t('common.dismiss')}`}
+            >
+              <Text style={styles.poiErrorText}>{t(poiError)}</Text>
+              <Text style={styles.poiErrorClose}>✕</Text>
+            </TouchableOpacity>
+          )}
+          {dangerLayerError && (
+            <TouchableOpacity
+              style={styles.poiErrorBanner}
+              onPress={clearDangerLayerError}
+              accessibilityRole="button"
+              accessibilityLabel={`${t(dangerLayerError)}. ${t('common.dismiss')}`}
+            >
+              <Text style={styles.poiErrorText}>{t(dangerLayerError)}</Text>
+              <Text style={styles.poiErrorClose}>✕</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.controls}>
-          {route && (
-            <TouchableOpacity style={styles.controlButton} onPress={handleClearRoute}>
+          {(route || routeLoading || routeError) && (
+            <TouchableOpacity
+              style={styles.controlButton}
+              onPress={handleClearRoute}
+              accessibilityRole="button"
+              accessibilityLabel={t('routes.clear')}
+            >
               <Text style={styles.controlButtonText}>✕</Text>
             </TouchableOpacity>
           )}
@@ -250,7 +330,15 @@ export default function MapScreen() {
             availableIndicators={availableIndicators}
             onSelectIndicator={setIndicator}
           />
-          <TouchableOpacity style={styles.controlButton} onPress={refreshLocation}>
+          {dangerLayerLoading && (
+            <ActivityIndicator size="small" color={colors.primary} />
+          )}
+          <TouchableOpacity
+            style={styles.controlButton}
+            onPress={refreshLocation}
+            accessibilityRole="button"
+            accessibilityLabel={t('map.refreshLocation')}
+          >
             <Text style={styles.controlButtonText}>📍</Text>
           </TouchableOpacity>
         </View>
@@ -266,7 +354,7 @@ export default function MapScreen() {
         </View>
       )}
 
-      {(route || routeLoading) && (
+      {(route || routeLoading || routeError) && (
         <View style={styles.routePanelContainer}>
           <TransportModeSelector
             selectedMode={transportMode}
@@ -303,6 +391,28 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     fontSize: fontSize.md,
     color: colors.textLight,
+  },
+  poiErrorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FDECEC',
+    borderRadius: borderRadius.md,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  poiErrorText: {
+    flex: 1,
+    color: colors.error,
+    fontSize: fontSize.sm,
+  },
+  poiErrorClose: {
+    color: colors.error,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.bold,
+    marginLeft: spacing.sm,
   },
   errorContainer: {
     flex: 1,

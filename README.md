@@ -5,11 +5,13 @@ A cross-platform mobile and web application to explore points of interest (monum
 ## Features
 
 - **Interactive map** with OpenStreetMap (react-native-maps + react-leaflet)
+- **Offline travel directory** for Paris and Beijing with locally bundled information and images
 - **POI search** via Overpass API (monuments, museums, parks, restaurants)
 - **Category filters** with color-coded interactive chips
 - **POI detail card** with address, opening hours, phone and website
 - **Route planning** with walking/driving directions via OSRM
 - **Real-time GPS tracking** with automatic route recalculation and arrival detection
+- **Danger layers** using crime indicators, heatmaps, QPV and QRR datasets
 - **User geolocation** with GPS permission handling
 - **Cross-platform**: iOS, Android and Web
 - **Bilingual**: French / English with automatic language detection
@@ -17,7 +19,6 @@ A cross-platform mobile and web application to explore points of interest (monum
 ### Upcoming
 
 - Public transit via Navitia.io
-- Danger zone heatmap via data.gouv.fr
 
 ## Tech Stack
 
@@ -31,10 +32,11 @@ A cross-platform mobile and web application to explore points of interest (monum
 | i18n | i18next + react-i18next + expo-localization |
 | Location | expo-location |
 | Language | TypeScript (strict mode) |
+| Tests | Jest + React Native Testing Library |
 
 ## Prerequisites
 
-- Node.js v18+
+- Node.js v20.19+
 - npm
 - Expo CLI (`npx expo`)
 
@@ -44,6 +46,9 @@ A cross-platform mobile and web application to explore points of interest (monum
 git clone <repository-url>
 cd point-of-interest
 npm install
+
+# Optional runtime configuration
+cp .env.sample .env
 ```
 
 ## Getting Started
@@ -60,11 +65,17 @@ npm run android
 
 # Expo dev server
 npm start
+
+# Tests and static type checking
+npm test
+npm run typecheck
 ```
 
 ## Documentation
 
 Technical documentation is available in the [docs/](docs/) folder.
+
+Location data transfers to third-party map and routing services are documented in [docs/privacy.md](docs/privacy.md).
 
 ## Versioning
 

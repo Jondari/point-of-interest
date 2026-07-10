@@ -30,6 +30,9 @@ export default function TransportModeSelector({
             style={[styles.chip, isActive && styles.chipActive]}
             onPress={() => onSelectMode(mode)}
             disabled={disabled}
+            accessibilityRole="button"
+            accessibilityLabel={t(config.labelKey)}
+            accessibilityState={{ selected: isActive, disabled }}
           >
             <Text style={styles.emoji}>{config.emoji}</Text>
             <Text style={[styles.label, isActive && styles.labelActive]}>

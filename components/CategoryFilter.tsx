@@ -35,6 +35,9 @@ export default function CategoryFilter({
             ]}
             onPress={() => onToggleCategory(category)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={t(config.labelKey)}
+            accessibilityState={{ selected: isSelected }}
           >
             <Text style={styles.emoji}>{config.emoji}</Text>
             <Text

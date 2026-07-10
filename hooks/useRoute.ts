@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Route, RoutePoint, TransportMode } from '../types/route';
 import { fetchRoute } from '../services/osrmApi';
 
@@ -17,10 +17,18 @@ export function useRoute() {
 
   const lastFromRef = useRef<RoutePoint | null>(null);
   const lastToRef = useRef<RoutePoint | null>(null);
+  const requestIdRef = useRef(0);
+  const requestControllerRef = useRef<AbortController | null>(null);
 
   const calculateRoute = useCallback(
     async (from: RoutePoint, to: RoutePoint, mode?: TransportMode) => {
       const activeMode = mode ?? transportMode;
+      const requestId = ++requestIdRef.current;
+
+      requestControllerRef.current?.abort();
+      const controller = new AbortController();
+      requestControllerRef.current = controller;
+
       lastFromRef.current = from;
       lastToRef.current = to;
 
@@ -28,13 +36,24 @@ export function useRoute() {
       setError(null);
 
       try {
-        const result = await fetchRoute(from, to, activeMode);
+        const result = await fetchRoute(from, to, activeMode, controller.signal);
+        if (requestId !== requestIdRef.current) return null;
+
         setRoute(result);
+        return result;
       } catch {
+        if (requestId !== requestIdRef.current || controller.signal.aborted) {
+          return null;
+        }
+
         setError('routes.fetchError');
         setRoute(null);
+        return null;
       } finally {
-        setIsLoading(false);
+        if (requestId === requestIdRef.current) {
+          requestControllerRef.current = null;
+          setIsLoading(false);
+        }
       }
     },
     [transportMode]
@@ -51,7 +70,11 @@ export function useRoute() {
   );
 
   const clearRoute = useCallback(() => {
+    requestIdRef.current += 1;
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
     setRoute(null);
+    setIsLoading(false);
     setError(null);
     lastFromRef.current = null;
     lastToRef.current = null;
@@ -59,6 +82,13 @@ export function useRoute() {
 
   const clearError = useCallback(() => {
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      requestIdRef.current += 1;
+      requestControllerRef.current?.abort();
+    };
   }, []);
 
   return {

@@ -1,15 +1,45 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { POIFilters, DEFAULT_POI_FILTERS } from '../types/poi';
+import { POICategory, POIFilters, DEFAULT_POI_FILTERS } from '../types/poi';
 
 const POI_FILTERS_KEY = 'poi_filters';
 const POI_FAVORITES_KEY = 'poi_favorites';
+const POI_CATEGORIES: ReadonlySet<string> = new Set<POICategory>([
+  'monument',
+  'museum',
+  'park',
+  'restaurant',
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isPOIFilters(value: unknown): value is POIFilters {
+  if (!isRecord(value)) return false;
+
+  const { categories, searchRadius } = value;
+  return (
+    Array.isArray(categories) &&
+    categories.every(
+      (category) => typeof category === 'string' && POI_CATEGORIES.has(category)
+    ) &&
+    typeof searchRadius === 'number' &&
+    Number.isFinite(searchRadius) &&
+    searchRadius > 0
+  );
+}
+
+function isFavoriteList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((id) => typeof id === 'string');
+}
 
 export const poiStore = {
   async getFilters(): Promise<POIFilters> {
     try {
       const value = await AsyncStorage.getItem(POI_FILTERS_KEY);
       if (value) {
-        return JSON.parse(value);
+        const parsed: unknown = JSON.parse(value);
+        if (isPOIFilters(parsed)) return parsed;
       }
       return DEFAULT_POI_FILTERS;
     } catch {
@@ -25,7 +55,8 @@ export const poiStore = {
     try {
       const value = await AsyncStorage.getItem(POI_FAVORITES_KEY);
       if (value) {
-        return JSON.parse(value);
+        const parsed: unknown = JSON.parse(value);
+        if (isFavoriteList(parsed)) return parsed;
       }
       return [];
     } catch {

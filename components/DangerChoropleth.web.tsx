@@ -7,9 +7,10 @@ import { CommuneRenderData } from '../types/dangerZone';
 interface DangerChoroplethProps {
   communes: CommuneRenderData[];
   opacity: number;
+  dataKey: string;
 }
 
-export default function DangerChoropleth({ communes, opacity }: DangerChoroplethProps) {
+export default function DangerChoropleth({ communes, opacity, dataKey }: DangerChoroplethProps) {
   const featureCollection = useMemo<FeatureCollection>(() => ({
     type: 'FeatureCollection',
     features: communes.map((c) => ({
@@ -40,7 +41,7 @@ export default function DangerChoropleth({ communes, opacity }: DangerChoropleth
 
   return (
     <GeoJSON
-      key="danger-choropleth"
+      key={dataKey}
       data={featureCollection}
       style={style}
       onEachFeature={onEachFeature}

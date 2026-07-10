@@ -37,12 +37,24 @@ export default function DangerZoneToggle({
       <TouchableOpacity
         style={[styles.button, isVisible && styles.buttonActive]}
         onPress={onToggleVisibility}
+        accessibilityRole="switch"
+        accessibilityLabel={t('dangerZones.toggle')}
+        accessibilityState={{ checked: isVisible }}
       >
         <Text style={styles.buttonText}>⚠️</Text>
       </TouchableOpacity>
 
       {isVisible && (
-        <TouchableOpacity style={styles.button} onPress={onToggleMode}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onToggleMode}
+          accessibilityRole="button"
+          accessibilityLabel={t(
+            renderMode === 'choropleth'
+              ? 'dangerZones.heatmap'
+              : 'dangerZones.choropleth'
+          )}
+        >
           <Text style={styles.modeText}>
             {renderMode === 'choropleth' ? '🗺️' : '🔥'}
           </Text>
@@ -52,6 +64,9 @@ export default function DangerZoneToggle({
       <TouchableOpacity
         style={[styles.labelButton, showQPV && styles.labelButtonActiveBlue]}
         onPress={onToggleQPV}
+        accessibilityRole="switch"
+        accessibilityLabel={t('dangerZones.qpvLabel')}
+        accessibilityState={{ checked: showQPV }}
       >
         <Text style={[styles.labelText, showQPV && styles.labelTextActive]}>QPV</Text>
       </TouchableOpacity>
@@ -59,6 +74,9 @@ export default function DangerZoneToggle({
       <TouchableOpacity
         style={[styles.labelButton, showQRR && styles.labelButtonActivePurple]}
         onPress={onToggleQRR}
+        accessibilityRole="switch"
+        accessibilityLabel={t('dangerZones.qrrLabel')}
+        accessibilityState={{ checked: showQRR }}
       >
         <Text style={[styles.labelText, showQRR && styles.labelTextActive]}>QRR</Text>
       </TouchableOpacity>
@@ -77,6 +95,9 @@ export default function DangerZoneToggle({
                 selectedIndicator === ind.id && styles.indicatorChipActive,
               ]}
               onPress={() => onSelectIndicator(ind.id)}
+              accessibilityRole="button"
+              accessibilityLabel={t(ind.labelKey)}
+              accessibilityState={{ selected: selectedIndicator === ind.id }}
             >
               <Text
                 style={[

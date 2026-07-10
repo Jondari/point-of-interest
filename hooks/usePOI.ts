@@ -3,6 +3,8 @@ import { POI, POIFilters, POICategory, DEFAULT_POI_FILTERS } from '../types/poi'
 import { fetchPOIs, getBoundingBoxFromRegion } from '../services/overpassApi';
 import { poiStore } from '../stores/poiStore';
 
+const POI_DEBOUNCE_MS = 400;
+
 export interface POIState {
   pois: POI[];
   isLoading: boolean;
@@ -21,6 +23,10 @@ export function usePOI() {
   });
 
   const lastFetchRef = useRef<string | null>(null);
+  const pendingFetchRef = useRef<string | null>(null);
+  const requestIdRef = useRef(0);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadFilters();
@@ -32,45 +38,85 @@ export function usePOI() {
   };
 
   const fetchPOIsForLocation = useCallback(
-    async (latitude: number, longitude: number) => {
+    (latitude: number, longitude: number) => {
       const fetchKey = `${latitude.toFixed(3)}-${longitude.toFixed(3)}-${state.filters.categories.join(',')}`;
 
-      if (lastFetchRef.current === fetchKey) {
+      if (
+        lastFetchRef.current === fetchKey ||
+        pendingFetchRef.current === fetchKey
+      ) {
         return;
       }
 
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      requestIdRef.current += 1;
+      requestControllerRef.current?.abort();
 
-      try {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      pendingFetchRef.current = fetchKey;
+      const requestId = requestIdRef.current;
+
+      debounceRef.current = setTimeout(async () => {
+        const controller = new AbortController();
+        requestControllerRef.current = controller;
+        setState(prev => ({ ...prev, isLoading: true, error: null }));
+
         const bbox = getBoundingBoxFromRegion(
           latitude,
           longitude,
           state.filters.searchRadius
         );
 
-        const pois = await fetchPOIs(bbox, state.filters.categories);
-        lastFetchRef.current = fetchKey;
+        try {
+          const pois = await fetchPOIs(
+            bbox,
+            state.filters.categories,
+            controller.signal
+          );
 
-        setState(prev => ({
-          ...prev,
-          pois,
-          isLoading: false,
-        }));
-      } catch (error) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: 'poi.fetchError',
-        }));
-      }
+          if (requestId !== requestIdRef.current) return;
+
+          lastFetchRef.current = fetchKey;
+          setState(prev => ({
+            ...prev,
+            pois,
+            isLoading: false,
+          }));
+        } catch {
+          if (requestId !== requestIdRef.current || controller.signal.aborted) {
+            return;
+          }
+
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: 'poi.fetchError',
+          }));
+        } finally {
+          if (requestId === requestIdRef.current) {
+            requestControllerRef.current = null;
+            pendingFetchRef.current = null;
+          }
+        }
+      }, POI_DEBOUNCE_MS);
     },
-    [state.filters]
+    [state.filters.categories, state.filters.searchRadius]
   );
 
   const setFilters = useCallback(async (newFilters: Partial<POIFilters>) => {
     const updatedFilters = { ...state.filters, ...newFilters };
-    await poiStore.setFilters(updatedFilters);
+    requestIdRef.current += 1;
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
     lastFetchRef.current = null;
+    pendingFetchRef.current = null;
+    await poiStore.setFilters(updatedFilters);
     setState(prev => ({ ...prev, filters: updatedFilters }));
   }, [state.filters]);
 
@@ -89,6 +135,16 @@ export function usePOI() {
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      requestIdRef.current += 1;
+      requestControllerRef.current?.abort();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
   }, []);
 
   return {

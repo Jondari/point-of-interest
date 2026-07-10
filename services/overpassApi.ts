@@ -69,7 +69,7 @@ function detectCategory(tags: Record<string, string>): POICategory {
   return 'monument';
 }
 
-const SHOW_UNNAMED_POI = process.env.SHOW_UNNAMED_POI === 'true';
+const SHOW_UNNAMED_POI = process.env.EXPO_PUBLIC_SHOW_UNNAMED_POI === 'true';
 
 function parseOverpassResponse(data: OverpassResponse): POI[] {
   return data.elements
@@ -118,7 +118,8 @@ function formatAddress(tags: Record<string, string>): string | undefined {
 
 export async function fetchPOIs(
   bbox: BoundingBox,
-  categories: POICategory[]
+  categories: POICategory[],
+  signal?: AbortSignal
 ): Promise<POI[]> {
   if (categories.length === 0) {
     return [];
@@ -128,6 +129,13 @@ export async function fetchPOIs(
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  const handleExternalAbort = () => controller.abort();
+
+  if (signal?.aborted) {
+    controller.abort();
+  } else {
+    signal?.addEventListener('abort', handleExternalAbort, { once: true });
+  }
 
   try {
     const response = await fetch(API_CONFIG.OVERPASS_URL, {
@@ -139,8 +147,6 @@ export async function fetchPOIs(
       signal: controller.signal,
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
       throw new Error(`Overpass API error: ${response.status}`);
     }
@@ -148,11 +154,13 @@ export async function fetchPOIs(
     const data: OverpassResponse = await response.json();
     return parseOverpassResponse(data);
   } catch (error) {
-    clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('Request timeout');
+      throw new Error(signal?.aborted ? 'Request cancelled' : 'Request timeout');
     }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener('abort', handleExternalAbort);
   }
 }
 

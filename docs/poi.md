@@ -39,7 +39,7 @@ Bottom card shown when a POI is selected. Displays:
 - Category badge (emoji + color)
 - POI name
 - Address, opening hours, phone (tappable), website (tappable)
-- "Get directions" button (routing not yet implemented)
+- "Get directions" button with walking and driving routes powered by OSRM
 
 ## Hook: `usePOI`
 
