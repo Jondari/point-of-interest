@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/Jondari/point-of-interest/compare/v0.4.0...v0.5.0) (2026-07-13)
+
+
+### Features
+
+* **i18n:** add Chinese translations and language dropdown ([c0733d6](https://github.com/Jondari/point-of-interest/commit/c0733d673067748001c541e527b4c54dab950b92))
+
 ## [0.4.0](https://github.com/Jondari/point-of-interest/compare/v0.3.1...v0.4.0) (2026-07-13)
 
 
