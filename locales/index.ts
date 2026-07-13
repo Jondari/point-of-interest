@@ -5,16 +5,19 @@ import { languageStore } from '../stores/languageStore';
 
 import fr from './fr';
 import en from './en';
+import zh from './zh';
 
 const resources = {
   fr: { translation: fr },
   en: { translation: en },
+  zh: { translation: zh },
 };
 
 export const supportedLanguages = [
-  { code: 'fr', label: 'settings.french' },
-  { code: 'en', label: 'settings.english' },
-];
+  { code: 'fr', label: 'settings.french', shortLabel: 'FR' },
+  { code: 'en', label: 'settings.english', shortLabel: 'EN' },
+  { code: 'zh', label: 'settings.chinese', shortLabel: '中文' },
+] as const;
 
 const getDeviceLanguage = (): string => {
   const locales = getLocales();

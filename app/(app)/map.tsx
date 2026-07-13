@@ -9,13 +9,13 @@ import POICard from '../../components/POICard';
 import TransportModeSelector from '../../components/TransportModeSelector';
 import RouteDirections from '../../components/RouteDirections';
 import DangerZoneToggle from '../../components/DangerZoneToggle';
+import LanguageSelector from '../../components/LanguageSelector';
 import { useLocation } from '../../hooks/useLocation';
 import { useAuth } from '../../hooks/useAuth';
 import { usePOI } from '../../hooks/usePOI';
 import { useRoute } from '../../hooks/useRoute';
 import { useDangerZones } from '../../hooks/useDangerZones';
 import { DEFAULT_DANGER_ZONE_CONFIG } from '../../types/dangerZone';
-import { changeLanguage } from '../../locales';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
 import { POI } from '../../types/poi';
 import { RoutePoint } from '../../types/route';
@@ -39,7 +39,7 @@ function getDistanceMeters(
 
 export default function MapScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { location, isLoading: locationLoading, errorMessage, refreshLocation, startWatching, stopWatching } = useLocation();
   const routeDestinationRef = useRef<RoutePoint | null>(null);
   const lastRouteOriginRef = useRef<RoutePoint | null>(null);
@@ -90,11 +90,6 @@ export default function MapScreen() {
       fetchPOIs(location.latitude, location.longitude);
     }
   }, [location, filters.categories, fetchPOIs]);
-
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === 'fr' ? 'en' : 'fr';
-    changeLanguage(nextLang);
-  };
 
   const handleLogout = async () => {
     await logout();
@@ -256,16 +251,7 @@ export default function MapScreen() {
                 >
                   <Text style={styles.langButtonText}>{t('map.home')}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.langButton}
-                  onPress={toggleLanguage}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('settings.changeLanguage')}
-                >
-                  <Text style={styles.langButtonText}>
-                    {i18n.language === 'fr' ? 'EN' : 'FR'}
-                  </Text>
-                </TouchableOpacity>
+                <LanguageSelector />
                 <TouchableOpacity
                   style={styles.logoutButton}
                   onPress={handleLogout}

@@ -10,18 +10,13 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
-import { changeLanguage } from '../locales';
+import LanguageSelector from '../components/LanguageSelector';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../constants/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading, loginAsGuest } = useAuth();
-
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === 'fr' ? 'en' : 'fr';
-    changeLanguage(nextLang);
-  };
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -47,11 +42,7 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.languageRow}>
-        <TouchableOpacity style={styles.langButton} onPress={toggleLanguage}>
-          <Text style={styles.langButtonText}>
-            {i18n.language === 'fr' ? 'EN' : 'FR'}
-          </Text>
-        </TouchableOpacity>
+        <LanguageSelector />
       </View>
       <View style={styles.content}>
         <View style={styles.header}>
@@ -125,15 +116,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
-  },
-  langButton: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-  langButtonText: {
-    color: colors.primary,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold,
   },
   loadingContainer: {
     flex: 1,

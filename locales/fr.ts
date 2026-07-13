@@ -149,6 +149,7 @@ export default {
     changeLanguage: "Changer de langue",
     french: "Français",
     english: "English",
+    chinese: "中文",
   },
   permissions: {
     locationDenied: "Permission d'accès à la localisation refusée",

@@ -3,18 +3,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import { changeLanguage } from '../../locales';
+import LanguageSelector from '../../components/LanguageSelector';
 import { borderRadius, colors, fontSize, fontWeight, spacing } from '../../constants/theme';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { logout } = useAuth();
-
-  const toggleLanguage = () => {
-    const nextLanguage = i18n.language === 'fr' ? 'en' : 'fr';
-    changeLanguage(nextLanguage);
-  };
 
   const handleLogout = async () => {
     await logout();
@@ -25,16 +20,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerActions}>
-          <TouchableOpacity
-            onPress={toggleLanguage}
-            style={styles.headerButton}
-            accessibilityRole="button"
-            accessibilityLabel={t('settings.language')}
-          >
-            <Text style={styles.headerButtonText}>
-              {i18n.language === 'fr' ? 'EN' : 'FR'}
-            </Text>
-          </TouchableOpacity>
+          <LanguageSelector />
           <TouchableOpacity
             onPress={handleLogout}
             style={styles.headerButton}
