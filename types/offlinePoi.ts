@@ -1,6 +1,45 @@
 import type { ImageSourcePropType } from 'react-native';
 
-export type OfflineCityId = 'paris' | 'beijing';
+export const OFFLINE_COUNTRY_IDS = [
+  'france',
+  'china',
+  'spain',
+  'italy',
+  'netherlands',
+  'germany',
+  'greece',
+] as const;
+
+export type OfflineCountryId = typeof OFFLINE_COUNTRY_IDS[number];
+
+export const OFFLINE_CITY_IDS = [
+  'paris',
+  'lyon',
+  'toulouse',
+  'marseille',
+  'cannes',
+  'nice',
+  'beijing',
+  'madrid',
+  'barcelona',
+  'bilbao',
+  'canary-islands',
+  'rome',
+  'florence',
+  'venice',
+  'naples',
+  'amsterdam',
+  'berlin',
+  'frankfurt',
+  'athens',
+  'qingdao',
+  'xian',
+  'chengdu',
+  'shanghai',
+  'chongqing',
+] as const;
+
+export type OfflineCityId = typeof OFFLINE_CITY_IDS[number];
 
 export type OfflinePOICategory =
   | 'landmark'
@@ -14,8 +53,15 @@ export interface LocalizedText {
   en: string;
 }
 
+export interface OfflineCountry {
+  id: OfflineCountryId;
+  name: LocalizedText;
+  flagEmoji: string;
+}
+
 export interface OfflineCity {
   id: OfflineCityId;
+  countryId: OfflineCountryId;
   name: LocalizedText;
   localName: string;
   country: LocalizedText;
@@ -61,4 +107,12 @@ export const OFFLINE_POI_CATEGORY_CONFIG: Record<
 
 export function getLocalizedText(text: LocalizedText, language: string): string {
   return language.startsWith('en') ? text.en : text.fr;
+}
+
+export function isOfflineCountryId(value: string): value is OfflineCountryId {
+  return (OFFLINE_COUNTRY_IDS as readonly string[]).includes(value);
+}
+
+export function isOfflineCityId(value: string): value is OfflineCityId {
+  return (OFFLINE_CITY_IDS as readonly string[]).includes(value);
 }

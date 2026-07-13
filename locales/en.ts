@@ -48,6 +48,12 @@ export default {
   directory: {
     title: "Offline directory",
     offlineBadge: "Available without a connection",
+    selectCountry: "Choose a country",
+    openCountry: "View this country's destinations",
+    destinationCount_one: "{{count}} destination",
+    destinationCount_other: "{{count}} destinations",
+    countryNotFound: "This country is not available in the offline directory.",
+    backCountries: "Back to countries",
     backHome: "Back to home",
     back: "Back",
     searchPlaceholder: "Search for a place or address…",

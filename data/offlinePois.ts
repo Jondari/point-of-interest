@@ -1,21 +1,222 @@
-import { OfflineCity, OfflinePOI } from '../types/offlinePoi';
+import { OfflineCity, OfflineCountry, OfflinePOI } from '../types/offlinePoi';
+import { CHINA_POIS } from './offlinePois/china';
+import { FRANCE_POIS } from './offlinePois/france';
+import { GERMANY_POIS } from './offlinePois/germany';
+import { GREECE_POIS } from './offlinePois/greece';
+import { ITALY_POIS } from './offlinePois/italy';
+import { NETHERLANDS_POIS } from './offlinePois/netherlands';
+import { SPAIN_POIS } from './offlinePois/spain';
+
+export const OFFLINE_COUNTRIES: OfflineCountry[] = [
+  {
+    id: 'france',
+    name: { fr: 'France', en: 'France' },
+    flagEmoji: '🇫🇷',
+  },
+  {
+    id: 'china',
+    name: { fr: 'Chine', en: 'China' },
+    flagEmoji: '🇨🇳',
+  },
+  {
+    id: 'spain',
+    name: { fr: 'Espagne', en: 'Spain' },
+    flagEmoji: '🇪🇸',
+  },
+  {
+    id: 'italy',
+    name: { fr: 'Italie', en: 'Italy' },
+    flagEmoji: '🇮🇹',
+  },
+  {
+    id: 'netherlands',
+    name: { fr: 'Pays-Bas', en: 'Netherlands' },
+    flagEmoji: '🇳🇱',
+  },
+  {
+    id: 'germany',
+    name: { fr: 'Allemagne', en: 'Germany' },
+    flagEmoji: '🇩🇪',
+  },
+  {
+    id: 'greece',
+    name: { fr: 'Grèce', en: 'Greece' },
+    flagEmoji: '🇬🇷',
+  },
+];
 
 export const OFFLINE_CITIES: OfflineCity[] = [
   {
     id: 'paris',
+    countryId: 'france',
     name: { fr: 'Paris', en: 'Paris' },
     localName: 'Paris',
     country: { fr: 'France', en: 'France' },
   },
   {
+    id: 'lyon',
+    countryId: 'france',
+    name: { fr: 'Lyon', en: 'Lyon' },
+    localName: 'Lyon',
+    country: { fr: 'France', en: 'France' },
+  },
+  {
+    id: 'toulouse',
+    countryId: 'france',
+    name: { fr: 'Toulouse', en: 'Toulouse' },
+    localName: 'Toulouse',
+    country: { fr: 'France', en: 'France' },
+  },
+  {
+    id: 'marseille',
+    countryId: 'france',
+    name: { fr: 'Marseille', en: 'Marseille' },
+    localName: 'Marseille',
+    country: { fr: 'France', en: 'France' },
+  },
+  {
+    id: 'cannes',
+    countryId: 'france',
+    name: { fr: 'Cannes', en: 'Cannes' },
+    localName: 'Cannes',
+    country: { fr: 'France', en: 'France' },
+  },
+  {
+    id: 'nice',
+    countryId: 'france',
+    name: { fr: 'Nice', en: 'Nice' },
+    localName: 'Nice',
+    country: { fr: 'France', en: 'France' },
+  },
+  {
     id: 'beijing',
+    countryId: 'china',
     name: { fr: 'Pékin', en: 'Beijing' },
     localName: '北京',
     country: { fr: 'Chine', en: 'China' },
   },
+  {
+    id: 'qingdao',
+    countryId: 'china',
+    name: { fr: 'Qingdao', en: 'Qingdao' },
+    localName: '青岛',
+    country: { fr: 'Chine', en: 'China' },
+  },
+  {
+    id: 'xian',
+    countryId: 'china',
+    name: { fr: 'Xi’an', en: "Xi'an" },
+    localName: '西安',
+    country: { fr: 'Chine', en: 'China' },
+  },
+  {
+    id: 'chengdu',
+    countryId: 'china',
+    name: { fr: 'Chengdu', en: 'Chengdu' },
+    localName: '成都',
+    country: { fr: 'Chine', en: 'China' },
+  },
+  {
+    id: 'shanghai',
+    countryId: 'china',
+    name: { fr: 'Shanghai', en: 'Shanghai' },
+    localName: '上海',
+    country: { fr: 'Chine', en: 'China' },
+  },
+  {
+    id: 'chongqing',
+    countryId: 'china',
+    name: { fr: 'Chongqing', en: 'Chongqing' },
+    localName: '重庆',
+    country: { fr: 'Chine', en: 'China' },
+  },
+  {
+    id: 'madrid',
+    countryId: 'spain',
+    name: { fr: 'Madrid', en: 'Madrid' },
+    localName: 'Madrid',
+    country: { fr: 'Espagne', en: 'Spain' },
+  },
+  {
+    id: 'barcelona',
+    countryId: 'spain',
+    name: { fr: 'Barcelone', en: 'Barcelona' },
+    localName: 'Barcelona',
+    country: { fr: 'Espagne', en: 'Spain' },
+  },
+  {
+    id: 'bilbao',
+    countryId: 'spain',
+    name: { fr: 'Bilbao', en: 'Bilbao' },
+    localName: 'Bilbo',
+    country: { fr: 'Espagne', en: 'Spain' },
+  },
+  {
+    id: 'canary-islands',
+    countryId: 'spain',
+    name: { fr: 'Îles Canaries', en: 'Canary Islands' },
+    localName: 'Islas Canarias',
+    country: { fr: 'Espagne', en: 'Spain' },
+  },
+  {
+    id: 'rome',
+    countryId: 'italy',
+    name: { fr: 'Rome', en: 'Rome' },
+    localName: 'Roma',
+    country: { fr: 'Italie', en: 'Italy' },
+  },
+  {
+    id: 'florence',
+    countryId: 'italy',
+    name: { fr: 'Florence', en: 'Florence' },
+    localName: 'Firenze',
+    country: { fr: 'Italie', en: 'Italy' },
+  },
+  {
+    id: 'venice',
+    countryId: 'italy',
+    name: { fr: 'Venise', en: 'Venice' },
+    localName: 'Venezia',
+    country: { fr: 'Italie', en: 'Italy' },
+  },
+  {
+    id: 'naples',
+    countryId: 'italy',
+    name: { fr: 'Naples', en: 'Naples' },
+    localName: 'Napoli',
+    country: { fr: 'Italie', en: 'Italy' },
+  },
+  {
+    id: 'amsterdam',
+    countryId: 'netherlands',
+    name: { fr: 'Amsterdam', en: 'Amsterdam' },
+    localName: 'Amsterdam',
+    country: { fr: 'Pays-Bas', en: 'Netherlands' },
+  },
+  {
+    id: 'berlin',
+    countryId: 'germany',
+    name: { fr: 'Berlin', en: 'Berlin' },
+    localName: 'Berlin',
+    country: { fr: 'Allemagne', en: 'Germany' },
+  },
+  {
+    id: 'frankfurt',
+    countryId: 'germany',
+    name: { fr: 'Francfort', en: 'Frankfurt' },
+    localName: 'Frankfurt am Main',
+    country: { fr: 'Allemagne', en: 'Germany' },
+  },
+  {
+    id: 'athens',
+    countryId: 'greece',
+    name: { fr: 'Athènes', en: 'Athens' },
+    localName: 'Αθήνα',
+    country: { fr: 'Grèce', en: 'Greece' },
+  },
 ];
 
-export const OFFLINE_POIS: OfflinePOI[] = [
+const EXISTING_OFFLINE_POIS: OfflinePOI[] = [
   {
     id: 'paris-eiffel-tower',
     cityId: 'paris',
@@ -998,4 +1199,15 @@ export const OFFLINE_POIS: OfflinePOI[] = [
     sourceUrl: 'https://english.visitbeijing.com.cn/article/47OLkurttKy',
     lastUpdated: '2026-07-10',
   },
+];
+
+export const OFFLINE_POIS: OfflinePOI[] = [
+  ...EXISTING_OFFLINE_POIS,
+  ...CHINA_POIS,
+  ...FRANCE_POIS,
+  ...SPAIN_POIS,
+  ...ITALY_POIS,
+  ...NETHERLANDS_POIS,
+  ...GERMANY_POIS,
+  ...GREECE_POIS,
 ];

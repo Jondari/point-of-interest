@@ -1,7 +1,9 @@
-import { OFFLINE_CITIES, OFFLINE_POIS } from '../data/offlinePois';
+import { OFFLINE_CITIES, OFFLINE_COUNTRIES, OFFLINE_POIS } from '../data/offlinePois';
 import {
   OfflineCity,
   OfflineCityId,
+  OfflineCountry,
+  OfflineCountryId,
   OfflinePOI,
   OfflinePOICategory,
 } from '../types/offlinePoi';
@@ -33,8 +35,22 @@ function getSearchableText(poi: OfflinePOI): string {
   );
 }
 
-export function getOfflineCities(): OfflineCity[] {
-  return OFFLINE_CITIES;
+export function getOfflineCountries(): OfflineCountry[] {
+  return OFFLINE_COUNTRIES.filter(
+    (country) => getOfflineCities(country.id).length > 0
+  );
+}
+
+export function getOfflineCountry(
+  countryId: OfflineCountryId
+): OfflineCountry | undefined {
+  return OFFLINE_COUNTRIES.find((country) => country.id === countryId);
+}
+
+export function getOfflineCities(countryId?: OfflineCountryId): OfflineCity[] {
+  return countryId
+    ? OFFLINE_CITIES.filter((city) => city.countryId === countryId)
+    : OFFLINE_CITIES;
 }
 
 export function getOfflinePOIs(cityId: OfflineCityId): OfflinePOI[] {

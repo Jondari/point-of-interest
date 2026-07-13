@@ -48,6 +48,12 @@ export default {
   directory: {
     title: "Annuaire hors ligne",
     offlineBadge: "Disponible sans connexion",
+    selectCountry: "Choisissez un pays",
+    openCountry: "Voir les destinations de ce pays",
+    destinationCount_one: "{{count}} destination",
+    destinationCount_other: "{{count}} destinations",
+    countryNotFound: "Ce pays n'est pas disponible dans l'annuaire hors ligne.",
+    backCountries: "Retour aux pays",
     backHome: "Retour à l'accueil",
     back: "Retour",
     searchPlaceholder: "Rechercher un lieu, une adresse…",
