@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/Jondari/point-of-interest/compare/v0.3.1...v0.4.0) (2026-07-13)
+
+
+### Features
+
+* **directory:** add multi-country offline travel directory ([60a2cd6](https://github.com/Jondari/point-of-interest/commit/60a2cd60cce55dcf07cc0e2af16403d7a39555f9))
+
 ### [0.3.1](https://github.com/Jondari/point-of-interest/compare/v0.3.0...v0.3.1) (2026-07-13)
 
 
