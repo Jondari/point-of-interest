@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/Jondari/point-of-interest/compare/v0.3.0...v0.3.1) (2026-07-13)
+
+
+### Bug Fixes
+
+* **map:** improve request concurrency, GPS lifecycle and reliability ([b467263](https://github.com/Jondari/point-of-interest/commit/b4672634dae15c94bf6df1d271e2abd4bea2343f))
+
 ## [0.3.0](https://github.com/Jondari/point-of-interest/compare/v0.2.1...v0.3.0) (2026-07-10)
 
 
