@@ -31,24 +31,25 @@ export function createGreekPOI(seed: GreekPOISeed): OfflinePOI {
     imageAlt: {
       fr: 'Vue de ' + seed.name.fr,
       en: 'View of ' + seed.name.en,
+      zh: seed.name.zh + '景观',
     },
     practicalInfo: [
       {
         fr: 'Vérifier les horaires, les restrictions d’accès et les réservations avant la visite.',
-        en: 'Check opening hours, access restrictions and booking requirements before visiting.',
+        en: 'Check opening hours, access restrictions and booking requirements before visiting.', zh: '参观前请检查开放时间、访问限制和预订要求。',
       },
       {
         fr: 'Prévoir de l’eau, une protection solaire et des chaussures adaptées aux sols irréguliers.',
-        en: 'Bring water, sun protection and footwear suitable for uneven surfaces.',
+        en: 'Bring water, sun protection and footwear suitable for uneven surfaces.', zh: '带上水、防晒霜和适合不平坦表面的鞋子。',
       },
     ],
     openingHours: {
       fr: 'Horaires variables selon la saison ; consulter la source officielle.',
-      en: 'Opening hours vary by season; check the official source.',
+      en: 'Opening hours vary by season; check the official source.', zh: '开放时间因季节而异；检查官方来源。',
     },
     accessibility: {
       fr: 'Les conditions d’accessibilité varient selon les vestiges et les dénivelés ; vérifier avant la visite.',
-      en: 'Accessibility varies due to ruins and gradients; check before visiting.',
+      en: 'Accessibility varies due to ruins and gradients; check before visiting.', zh: '无障碍条件因遗址和坡度而异，参观前请提前确认。',
     },
     lastUpdated: '2026-07-13',
   };

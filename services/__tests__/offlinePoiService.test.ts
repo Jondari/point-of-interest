@@ -5,7 +5,12 @@ import {
   getOfflineCountry,
   searchOfflinePOIs,
 } from '../offlinePoiService';
-import { isOfflineCityId, isOfflineCountryId } from '../../types/offlinePoi';
+import {
+  getLocalizedText,
+  isOfflineCityId,
+  isOfflineCountryId,
+  type LocalizedText,
+} from '../../types/offlinePoi';
 
 describe('offlinePoiService country navigation', () => {
   it('only exposes countries that currently contain destinations', () => {
@@ -90,6 +95,44 @@ describe('offlinePoiService country navigation', () => {
 
     expect(results).toHaveLength(1);
     expect(results[0].id).toBe('paris-eiffel-tower');
+  });
+
+  it('returns localized directory content in Chinese', () => {
+    expect(getOfflineCountry('france')?.name.zh).toBe('法国');
+    expect(getOfflineCountry('china')?.name.zh).toBe('中国');
+    expect(
+      getLocalizedText(
+        { fr: 'Cité interdite', en: 'Forbidden City', zh: '故宫博物院' },
+        'zh-CN'
+      )
+    ).toBe('故宫博物院');
+  });
+
+  it('finds points of interest using a Chinese query', () => {
+    const results = searchOfflinePOIs('beijing', '故宫');
+
+    expect(results).toHaveLength(1);
+    expect(results[0].id).toBe('beijing-forbidden-city');
+  });
+
+  it('provides Chinese content for every directory entry', () => {
+    const localizedTexts: LocalizedText[] = [
+      ...OFFLINE_COUNTRIES.map((country) => country.name),
+      ...OFFLINE_CITIES.flatMap((city) => [city.name, city.country]),
+      ...OFFLINE_POIS.flatMap((poi) => [
+        poi.name,
+        poi.address,
+        poi.description,
+        ...poi.highlights,
+        ...(poi.imageAlt ? [poi.imageAlt] : []),
+        ...(poi.practicalInfo ?? []),
+        ...(poi.openingHours ? [poi.openingHours] : []),
+        ...(poi.price ? [poi.price] : []),
+        ...(poi.accessibility ? [poi.accessibility] : []),
+      ]),
+    ];
+
+    expect(localizedTexts.every((text) => text.zh.trim().length > 0)).toBe(true);
   });
 
   it('keeps country, city and POI identifiers valid and unique', () => {

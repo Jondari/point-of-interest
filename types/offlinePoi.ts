@@ -51,6 +51,7 @@ export type OfflinePOICategory =
 export interface LocalizedText {
   fr: string;
   en: string;
+  zh: string;
 }
 
 export interface OfflineCountry {
@@ -106,6 +107,10 @@ export const OFFLINE_POI_CATEGORY_CONFIG: Record<
 };
 
 export function getLocalizedText(text: LocalizedText, language: string): string {
+  if (language.startsWith('zh')) {
+    return text.zh;
+  }
+
   return language.startsWith('en') ? text.en : text.fr;
 }
 

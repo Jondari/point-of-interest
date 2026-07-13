@@ -21,13 +21,16 @@ function getSearchableText(poi: OfflinePOI): string {
     [
       poi.name.fr,
       poi.name.en,
+      poi.name.zh,
       poi.localName,
       poi.transliteration,
       poi.address.fr,
       poi.address.en,
+      poi.address.zh,
       poi.localAddress,
       poi.description.fr,
       poi.description.en,
+      poi.description.zh,
       poi.category,
     ]
       .filter(Boolean)
