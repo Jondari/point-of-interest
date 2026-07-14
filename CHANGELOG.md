@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.1](https://github.com/Jondari/point-of-interest/compare/v0.6.0...v0.6.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* **maps:** remove blocked OpenStreetMap tiles on Android ([3dc7788](https://github.com/Jondari/point-of-interest/commit/3dc778837aec860af3692d037532e750e031af49))
+
 ## [0.6.0](https://github.com/Jondari/point-of-interest/compare/v0.5.0...v0.6.0) (2026-07-13)
 
 
