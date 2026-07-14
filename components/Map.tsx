@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { UrlTile, Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
@@ -107,12 +107,6 @@ export default function Map({
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
-        <UrlTile
-          urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maximumZ={19}
-          flipY={false}
-        />
-
         {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'choropleth' && (
           <DangerChoropleth
             communes={visibleCommunes}
