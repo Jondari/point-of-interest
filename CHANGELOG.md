@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.4](https://github.com/Jondari/point-of-interest/compare/v0.6.3...v0.6.4) (2026-07-15)
+
+
+### Bug Fixes
+
+* **map:** limit, balance and cluster mobile POI results ([cc394f0](https://github.com/Jondari/point-of-interest/commit/cc394f097e4096f2bc0fbba86708a8c5fc6007e1))
+
 ### [0.6.3](https://github.com/Jondari/point-of-interest/compare/v0.6.2...v0.6.3) (2026-07-15)
 
 
