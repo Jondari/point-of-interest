@@ -102,6 +102,8 @@ export default {
     rateLimitError: "请求过多，请稍后重试",
     gatewayTimeoutError: "兴趣点服务响应超时",
     noResults: "未找到兴趣点",
+    clusterLabel: "{{count}} 个兴趣点",
+    resultsLimited: "此区域保留了 {{count}} 个兴趣点。放大地图可查看更多详细信息。",
   },
   routes: {
     walking: "步行",

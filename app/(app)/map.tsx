@@ -49,6 +49,7 @@ export default function MapScreen() {
   const {
     pois,
     isLoading: poisLoading,
+    isTruncated: poiResultsLimited,
     filters,
     selectedPOI,
     fetchPOIs,
@@ -290,6 +291,17 @@ export default function MapScreen() {
               <Text style={styles.poiErrorClose}>✕</Text>
             </TouchableOpacity>
           )}
+          {poiResultsLimited && !poiError && (
+            <View
+              style={styles.poiLimitBanner}
+              pointerEvents="none"
+              accessibilityLiveRegion="polite"
+            >
+              <Text style={styles.poiLimitText}>
+                {t('poi.resultsLimited', { count: pois.length })}
+              </Text>
+            </View>
+          )}
           {dangerLayerError && (
             <TouchableOpacity
               style={styles.poiErrorBanner}
@@ -410,6 +422,18 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: fontWeight.bold,
     marginLeft: spacing.sm,
+  },
+  poiLimitBanner: {
+    backgroundColor: '#FFF4E5',
+    borderRadius: borderRadius.md,
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  poiLimitText: {
+    color: colors.text,
+    fontSize: fontSize.sm,
   },
   errorContainer: {
     flex: 1,

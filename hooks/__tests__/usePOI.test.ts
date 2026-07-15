@@ -1,7 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { fetchPOIs, OverpassApiError } from '../../services/overpassApi';
 import { poiStore } from '../../stores/poiStore';
-import { DEFAULT_POI_FILTERS, MapRegion, POI } from '../../types/poi';
+import {
+  DEFAULT_POI_FILTERS,
+  MapRegion,
+  POI,
+  POIFetchResult,
+} from '../../types/poi';
 import { usePOI } from '../usePOI';
 
 jest.mock('../../services/overpassApi', () => {
@@ -60,6 +65,13 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
+function fetchResult(
+  pois: POI[],
+  isTruncated: boolean = false
+): POIFetchResult {
+  return { pois, isTruncated };
+}
+
 async function flushMicrotasks() {
   await Promise.resolve();
   await Promise.resolve();
@@ -79,7 +91,7 @@ describe('usePOI', () => {
   });
 
   it('debounces rapid location changes and fetches only the latest one', async () => {
-    mockFetchPOIs.mockResolvedValue([]);
+    mockFetchPOIs.mockResolvedValue(fetchResult([]));
     const { result } = renderHook(() => usePOI());
 
     await act(flushMicrotasks);
@@ -103,8 +115,8 @@ describe('usePOI', () => {
   });
 
   it('aborts an old request and ignores its late response', async () => {
-    const firstRequest = deferred<POI[]>();
-    const secondRequest = deferred<POI[]>();
+    const firstRequest = deferred<POIFetchResult>();
+    const secondRequest = deferred<POIFetchResult>();
     let firstSignal: AbortSignal | undefined;
 
     mockFetchPOIs
@@ -133,7 +145,7 @@ describe('usePOI', () => {
     });
 
     await act(async () => {
-      secondRequest.resolve([beijingPOI]);
+      secondRequest.resolve(fetchResult([beijingPOI]));
       await secondRequest.promise;
       await flushMicrotasks();
     });
@@ -141,7 +153,7 @@ describe('usePOI', () => {
     expect(result.current.pois).toEqual([beijingPOI]);
 
     await act(async () => {
-      firstRequest.resolve([parisPOI]);
+      firstRequest.resolve(fetchResult([parisPOI]));
       await firstRequest.promise;
       await flushMicrotasks();
     });
@@ -188,7 +200,7 @@ describe('usePOI', () => {
   );
 
   it('fetches again when the zoom changes the requested bounding box', async () => {
-    mockFetchPOIs.mockResolvedValue([]);
+    mockFetchPOIs.mockResolvedValue(fetchResult([]));
     const { result } = renderHook(() => usePOI());
     await act(flushMicrotasks);
 
@@ -215,7 +227,7 @@ describe('usePOI', () => {
   });
 
   it('reuses loaded POIs while the viewport stays inside the fetched area', async () => {
-    mockFetchPOIs.mockResolvedValue([parisPOI]);
+    mockFetchPOIs.mockResolvedValue(fetchResult([parisPOI]));
     const { result } = renderHook(() => usePOI());
     await act(flushMicrotasks);
 
@@ -235,7 +247,7 @@ describe('usePOI', () => {
   });
 
   it('keeps a pending request when it already covers the new viewport', async () => {
-    const firstRequest = deferred<POI[]>();
+    const firstRequest = deferred<POIFetchResult>();
     let firstSignal: AbortSignal | undefined;
 
     mockFetchPOIs.mockImplementationOnce((_bbox, _categories, signal) => {
@@ -260,11 +272,31 @@ describe('usePOI', () => {
     expect(firstSignal?.aborted).toBe(false);
 
     await act(async () => {
-      firstRequest.resolve([parisPOI]);
+      firstRequest.resolve(fetchResult([parisPOI]));
       await firstRequest.promise;
       await flushMicrotasks();
     });
 
     expect(result.current.pois).toEqual([parisPOI]);
+  });
+
+  it('exposes and resets the truncated result state', async () => {
+    mockFetchPOIs.mockResolvedValueOnce(fetchResult([parisPOI], true));
+    const { result } = renderHook(() => usePOI());
+    await act(flushMicrotasks);
+
+    await act(async () => {
+      result.current.fetchPOIs(region(48.8566, 2.3522));
+      jest.advanceTimersByTime(400);
+      await flushMicrotasks();
+    });
+
+    expect(result.current.isTruncated).toBe(true);
+
+    await act(async () => {
+      await result.current.setFilters({ categories: ['museum'] });
+    });
+
+    expect(result.current.isTruncated).toBe(false);
   });
 });

@@ -2,10 +2,13 @@ import { Platform } from 'react-native';
 import {
   POI,
   POICategory,
+  POIFetchResult,
   BoundingBox,
   MapRegion,
 } from '../types/poi';
 import { API_CONFIG, OVERPASS_API_TIMEOUT } from '../constants/api';
+import { getPOILimits } from '../constants/poiLimits';
+import { selectBalancedPOIs } from '../utils/poiSelection';
 
 const MOBILE_USER_AGENT =
   'PointOfInterest (+https://github.com/Jondari/point-of-interest)';
@@ -67,7 +70,11 @@ const CATEGORY_QUERIES: Record<POICategory, string[]> = {
   ],
 };
 
-function buildOverpassQuery(bbox: BoundingBox, categories: POICategory[]): string {
+function buildOverpassQuery(
+  bbox: BoundingBox,
+  categories: POICategory[],
+  outputLimit: number
+): string {
   const bboxStr = `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`;
 
   const queries = categories.flatMap(category =>
@@ -79,7 +86,7 @@ function buildOverpassQuery(bbox: BoundingBox, categories: POICategory[]): strin
     (
       ${queries.join('\n      ')}
     );
-    out center;
+    out center qt ${outputLimit};
   `.trim();
 }
 
@@ -150,12 +157,20 @@ export async function fetchPOIs(
   bbox: BoundingBox,
   categories: POICategory[],
   signal?: AbortSignal
-): Promise<POI[]> {
+): Promise<POIFetchResult> {
   if (categories.length === 0) {
-    return [];
+    return {
+      pois: [],
+      isTruncated: false,
+    };
   }
 
-  const query = buildOverpassQuery(bbox, categories);
+  const limits = getPOILimits(Platform.OS);
+  const query = buildOverpassQuery(
+    bbox,
+    categories,
+    limits.overpassCandidates
+  );
 
   const controller = new AbortController();
   const timeoutId = setTimeout(
@@ -183,7 +198,20 @@ export async function fetchPOIs(
     }
 
     const data: OverpassResponse = await response.json();
-    return parseOverpassResponse(data);
+    const candidates = parseOverpassResponse(data);
+    const pois = selectBalancedPOIs(
+      candidates,
+      categories,
+      bbox,
+      limits.retainedResults
+    );
+
+    return {
+      pois,
+      isTruncated:
+        data.elements.length >= limits.overpassCandidates ||
+        candidates.length > limits.retainedResults,
+    };
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error(signal?.aborted ? 'Request cancelled' : 'Request timeout');

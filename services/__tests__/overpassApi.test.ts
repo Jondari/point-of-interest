@@ -1,5 +1,7 @@
-import { MapRegion } from '../../types/poi';
+import { Platform } from 'react-native';
+import { BoundingBox, MapRegion } from '../../types/poi';
 import {
+  fetchPOIs,
   getBoundingBoxFromRegion,
   isBoundingBoxContained,
 } from '../overpassApi';
@@ -10,6 +12,32 @@ const parisRegion: MapRegion = {
   latitudeDelta: 0.02,
   longitudeDelta: 0.04,
 };
+
+const parisBoundingBox: BoundingBox = {
+  south: 48.84,
+  west: 2.33,
+  north: 48.88,
+  east: 2.39,
+};
+
+const originalPlatform = Platform.OS;
+const originalFetch = global.fetch;
+
+function setPlatform(os: string) {
+  Object.defineProperty(Platform, 'OS', {
+    configurable: true,
+    value: os,
+  });
+}
+
+function mockOverpassResponse(elements: object[]) {
+  const fetchMock = jest.fn().mockResolvedValue({
+    ok: true,
+    json: jest.fn().mockResolvedValue({ elements }),
+  });
+  global.fetch = fetchMock as unknown as typeof fetch;
+  return fetchMock;
+}
 
 describe('getBoundingBoxFromRegion', () => {
   it('adds a 25 percent margin on each side of the viewport', () => {
@@ -98,5 +126,49 @@ describe('isBoundingBoxContained', () => {
         outer
       )
     ).toBe(false);
+  });
+});
+
+describe('fetchPOIs result limits', () => {
+  afterEach(() => {
+    setPlatform(originalPlatform);
+    global.fetch = originalFetch;
+  });
+
+  it.each([
+    ['ios', 1000],
+    ['web', 2000],
+  ])('uses the %s output limit of %i', async (platform, outputLimit) => {
+    setPlatform(platform);
+    const fetchMock = mockOverpassResponse([]);
+
+    await fetchPOIs(parisBoundingBox, ['museum']);
+
+    const options = fetchMock.mock.calls[0][1] as RequestInit;
+    const body = options.body as string;
+    const query = decodeURIComponent(body.replace(/^data=/, ''));
+
+    expect(query).toContain(`out center qt ${outputLimit};`);
+  });
+
+  it('marks a response as truncated when the mobile output limit is reached', async () => {
+    setPlatform('android');
+    mockOverpassResponse(
+      Array.from({ length: 1000 }, (_, index) => ({
+        type: 'node',
+        id: index,
+        lat: 48.85,
+        lon: 2.35,
+        tags: {
+          name: `Museum ${index}`,
+          tourism: 'museum',
+        },
+      }))
+    );
+
+    const result = await fetchPOIs(parisBoundingBox, ['museum']);
+
+    expect(result.pois).toHaveLength(200);
+    expect(result.isTruncated).toBe(true);
   });
 });

@@ -15,6 +15,11 @@ export interface POI {
   tags: Record<string, string>;
 }
 
+export interface POIFetchResult {
+  pois: POI[];
+  isTruncated: boolean;
+}
+
 export interface POIFilters {
   categories: POICategory[];
   searchRadius: number;

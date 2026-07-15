@@ -6,6 +6,7 @@ import { POI } from '../types/poi';
 import { Route } from '../types/route';
 import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker';
+import POIClusterMarker from './POIClusterMarker';
 import RoutePolyline from './RoutePolyline';
 import DangerChoropleth from './DangerChoropleth';
 import DangerHeatmap from './DangerHeatmap';
@@ -14,10 +15,14 @@ import QRROverlay from './QRROverlay';
 import {
   filterCommunesByViewport,
   filterHeatmapByViewport,
-  selectPOIsForViewport,
+  createPOIMapItemsForViewport,
+  getRegionForPOICluster,
+  POICluster,
 } from '../utils/mapViewport';
+import { getPOILimits } from '../constants/poiLimits';
 
-const MAX_MOBILE_POI_MARKERS = 100;
+const MAX_MOBILE_POI_MARKERS =
+  getPOILimits('mobile').renderedMarkers;
 
 interface MapProps {
   latitude: number;
@@ -71,8 +76,8 @@ export default function Map({
     () => filterHeatmapByViewport(dangerZoneProps?.heatmapPoints ?? [], visibleRegion),
     [dangerZoneProps?.heatmapPoints, visibleRegion]
   );
-  const visiblePOIs = useMemo(
-    () => selectPOIsForViewport(
+  const poiMapItems = useMemo(
+    () => createPOIMapItemsForViewport(
       pois,
       visibleRegion,
       MAX_MOBILE_POI_MARKERS
@@ -103,6 +108,13 @@ export default function Map({
     },
     [onPOIPress]
   );
+
+  const handleClusterPress = useCallback((cluster: POICluster) => {
+    mapRef.current?.animateToRegion(
+      getRegionForPOICluster(cluster),
+      300
+    );
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -141,14 +153,22 @@ export default function Map({
           <QRROverlay features={dangerZoneProps.qrrData} />
         )}
 
-        {visiblePOIs.map(poi => (
-          <POIMarker
-            key={poi.id}
-            poi={poi}
-            onPress={handlePOIPress}
-            isSelected={selectedPOI?.id === poi.id}
-          />
-        ))}
+        {poiMapItems.map(item =>
+          item.type === 'poi' ? (
+            <POIMarker
+              key={item.id}
+              poi={item.poi}
+              onPress={handlePOIPress}
+              isSelected={selectedPOI?.id === item.poi.id}
+            />
+          ) : (
+            <POIClusterMarker
+              key={item.id}
+              cluster={item.cluster}
+              onPress={handleClusterPress}
+            />
+          )
+        )}
 
         {route && <RoutePolyline route={route} />}
 

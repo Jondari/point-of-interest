@@ -1,9 +1,12 @@
 import { CommuneRenderData, HeatmapPoint } from '../../types/dangerZone';
 import { POI } from '../../types/poi';
 import {
+  createPOIMapItemsForViewport,
   filterCommunesByViewport,
   filterHeatmapByViewport,
+  getRegionForPOICluster,
   isPointWithinViewport,
+  POICluster,
   selectPOIsForViewport,
   ViewportRegion,
 } from '../mapViewport';
@@ -85,5 +88,55 @@ describe('mapViewport', () => {
         0
       )
     ).toEqual([]);
+  });
+
+  it('keeps individual markers while their count is below the limit', () => {
+    const items = createPOIMapItemsForViewport(
+      [
+        poi('first', 48.8566, 2.3522),
+        poi('second', 48.8567, 2.3523),
+      ],
+      parisRegion,
+      100
+    );
+
+    expect(items).toHaveLength(2);
+    expect(items.every(item => item.type === 'poi')).toBe(true);
+  });
+
+  it('clusters visible POIs when they exceed the marker limit', () => {
+    const items = createPOIMapItemsForViewport(
+      Array.from({ length: 101 }, (_, index) =>
+        poi(`poi-${index}`, 48.8566, 2.3522)
+      ),
+      parisRegion,
+      100
+    );
+
+    expect(items.length).toBeLessThanOrEqual(100);
+    expect(items).toHaveLength(1);
+    expect(items[0].type).toBe('cluster');
+    if (items[0].type === 'cluster') {
+      expect(items[0].cluster.count).toBe(101);
+    }
+  });
+
+  it('calculates a padded map region for a cluster', () => {
+    const cluster: POICluster = {
+      latitude: 48.86,
+      longitude: 2.36,
+      count: 2,
+      pois: [
+        poi('south-west', 48.85, 2.35),
+        poi('north-east', 48.87, 2.37),
+      ],
+    };
+
+    const region = getRegionForPOICluster(cluster);
+
+    expect(region.latitude).toBeCloseTo(48.86, 6);
+    expect(region.longitude).toBeCloseTo(2.36, 6);
+    expect(region.latitudeDelta).toBeCloseTo(0.03, 6);
+    expect(region.longitudeDelta).toBeCloseTo(0.03, 6);
   });
 });

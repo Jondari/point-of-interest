@@ -102,6 +102,8 @@ export default {
     rateLimitError: "Trop de requêtes. Réessayez dans quelques instants",
     gatewayTimeoutError: "Le service de points d'intérêt met trop de temps à répondre",
     noResults: "Aucun point d'intérêt trouvé",
+    clusterLabel: "{{count}} points d'intérêt",
+    resultsLimited: "{{count}} points d'intérêt retenus dans cette zone. Zoomez pour afficher davantage de détails.",
   },
   routes: {
     walking: "À pied",

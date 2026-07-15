@@ -102,6 +102,8 @@ export default {
     rateLimitError: "Too many requests. Please try again shortly",
     gatewayTimeoutError: "The point of interest service is taking too long to respond",
     noResults: "No points of interest found",
+    clusterLabel: "{{count}} points of interest",
+    resultsLimited: "{{count}} points of interest retained in this area. Zoom in to display more details.",
   },
   routes: {
     walking: "Walking",

@@ -17,16 +17,51 @@ Used to fetch points of interest from OpenStreetMap within a bounding box.
 
 ### `fetchPOIs(bbox, categories)`
 
-Builds an Overpass QL query filtering OSM nodes/ways by category tags, executes it against the Overpass API, and returns parsed `POI[]` objects.
+Builds an Overpass QL query filtering OSM nodes/ways by category tags,
+executes it against the Overpass API, and returns a `POIFetchResult`:
+
+```typescript
+interface POIFetchResult {
+  pois: POI[];
+  isTruncated: boolean;
+}
+```
+
+`isTruncated` is `true` when the Overpass output limit is reached or when
+the number of parsed candidates exceeds the application retention limit.
 
 **Category mapping**:
 
 | Category | OSM Tags |
 |----------|----------|
-| monument | `historic=monument`, `historic=castle`, `historic=memorial` |
+| monument | `historic=monument`, `historic=memorial` |
 | museum | `tourism=museum` |
 | park | `leisure=park`, `leisure=garden` |
 | restaurant | `amenity=restaurant`, `amenity=cafe` |
+
+### Result limits and selection
+
+The Overpass query uses `out center qt <limit>` as a response-size safety
+limit. `qt` uses an approximately geographical quadtile order; it does not
+rank results by relevance or by distance from the viewport center.
+
+| Limit | Mobile | Web |
+|-------|-------:|----:|
+| Overpass candidates | 1000 | 2000 |
+| Retained POIs | 200 | 1000 |
+| Simultaneous map items | 100 | 1000 |
+
+After parsing:
+
+1. invalid and unnamed elements are removed;
+2. candidates are grouped by selected category;
+3. each category receives an initial equal quota;
+4. unused places are redistributed to the nearest remaining candidates;
+5. retained POIs are ordered by distance from the bounding-box center.
+
+Category balancing applies only to candidates returned by Overpass. A category
+that was excluded by the Overpass output limit cannot be recovered by the
+client-side selection.
 
 ### `getBoundingBoxFromRegion(region, maxRadiusMeters)`
 
@@ -49,10 +84,12 @@ By default, POIs without a name are excluded from results (many monuments lack n
 - The last successful bounding box is cached in memory for the active filters;
   no request is sent while the visible viewport remains inside that area
 - A pending request is also reused when it already covers the visible viewport
+- A truncated response remains cached until the viewport leaves the cached
+  bounding box or the active filters change
 
 ## Configuration
 
-All API URLs and defaults are defined in `constants/api.ts`:
+API URLs and timeout defaults are defined in `constants/api.ts`:
 
 ```typescript
 API_CONFIG.OVERPASS_URL   // https://overpass-api.de/api/interpreter
@@ -63,6 +100,8 @@ DEFAULT_SEARCH_RADIUS    // 5000 (meters)
 API_TIMEOUT              // 15000 (ms)
 OVERPASS_API_TIMEOUT     // 30000 (ms)
 ```
+
+Platform-specific result limits are defined in `constants/poiLimits.ts`.
 
 ## Environment Variables
 

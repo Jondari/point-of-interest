@@ -57,6 +57,7 @@ function getPOIFetchErrorKey(error: unknown): string {
 export interface POIState {
   pois: POI[];
   isLoading: boolean;
+  isTruncated: boolean;
   error: string | null;
   filters: POIFilters;
   selectedPOI: POI | null;
@@ -66,6 +67,7 @@ export function usePOI() {
   const [state, setState] = useState<POIState>({
     pois: [],
     isLoading: false,
+    isTruncated: false,
     error: null,
     filters: DEFAULT_POI_FILTERS,
     selectedPOI: null,
@@ -153,7 +155,7 @@ export function usePOI() {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
         try {
-          const pois = await fetchPOIs(
+          const result = await fetchPOIs(
             queryBoundingBox,
             state.filters.categories,
             controller.signal
@@ -164,7 +166,8 @@ export function usePOI() {
           lastCoverageRef.current = coverage;
           setState(prev => ({
             ...prev,
-            pois,
+            pois: result.pois,
+            isTruncated: result.isTruncated,
             isLoading: false,
           }));
         } catch (error) {
@@ -200,7 +203,11 @@ export function usePOI() {
     lastCoverageRef.current = null;
     pendingCoverageRef.current = null;
     await poiStore.setFilters(updatedFilters);
-    setState(prev => ({ ...prev, filters: updatedFilters }));
+    setState(prev => ({
+      ...prev,
+      filters: updatedFilters,
+      isTruncated: false,
+    }));
   }, [state.filters]);
 
   const toggleCategory = useCallback(async (category: POICategory) => {
@@ -233,6 +240,7 @@ export function usePOI() {
   return {
     pois: state.pois,
     isLoading: state.isLoading,
+    isTruncated: state.isTruncated,
     error: state.error,
     filters: state.filters,
     selectedPOI: state.selectedPOI,
