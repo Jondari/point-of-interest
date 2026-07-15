@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { fetchPOIs, OverpassApiError } from '../../services/overpassApi';
 import { poiStore } from '../../stores/poiStore';
-import { DEFAULT_POI_FILTERS, POI } from '../../types/poi';
+import { DEFAULT_POI_FILTERS, MapRegion, POI } from '../../types/poi';
 import { usePOI } from '../usePOI';
 
 jest.mock('../../services/overpassApi', () => {
@@ -37,6 +37,20 @@ const beijingPOI: POI = {
   tags: {},
 };
 
+function region(
+  latitude: number,
+  longitude: number,
+  latitudeDelta: number = 0.02,
+  longitudeDelta: number = 0.02
+): MapRegion {
+  return {
+    latitude,
+    longitude,
+    latitudeDelta,
+    longitudeDelta,
+  };
+}
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>(resolvePromise => {
@@ -71,9 +85,9 @@ describe('usePOI', () => {
     await act(flushMicrotasks);
 
     act(() => {
-      result.current.fetchPOIs(48.8566, 2.3522);
-      result.current.fetchPOIs(48.8606, 2.3376);
-      result.current.fetchPOIs(48.8584, 2.2945);
+      result.current.fetchPOIs(region(48.8566, 2.3522));
+      result.current.fetchPOIs(region(48.8606, 2.3376));
+      result.current.fetchPOIs(region(48.8584, 2.2945));
       jest.advanceTimersByTime(399);
     });
 
@@ -104,12 +118,12 @@ describe('usePOI', () => {
     await act(flushMicrotasks);
 
     act(() => {
-      result.current.fetchPOIs(48.8566, 2.3522);
+      result.current.fetchPOIs(region(48.8566, 2.3522));
       jest.advanceTimersByTime(400);
     });
 
     act(() => {
-      result.current.fetchPOIs(39.9042, 116.4074);
+      result.current.fetchPOIs(region(39.9042, 116.4074));
     });
 
     expect(firstSignal?.aborted).toBe(true);
@@ -142,7 +156,7 @@ describe('usePOI', () => {
     await act(flushMicrotasks);
 
     await act(async () => {
-      result.current.fetchPOIs(48.8566, 2.3522);
+      result.current.fetchPOIs(region(48.8566, 2.3522));
       jest.advanceTimersByTime(400);
       await flushMicrotasks();
     });
@@ -163,7 +177,7 @@ describe('usePOI', () => {
       await act(flushMicrotasks);
 
       await act(async () => {
-        result.current.fetchPOIs(48.8566, 2.3522);
+        result.current.fetchPOIs(region(48.8566, 2.3522));
         jest.advanceTimersByTime(400);
         await flushMicrotasks();
       });
@@ -172,4 +186,85 @@ describe('usePOI', () => {
       expect(result.current.error).toBe(expectedError);
     }
   );
+
+  it('fetches again when the zoom changes the requested bounding box', async () => {
+    mockFetchPOIs.mockResolvedValue([]);
+    const { result } = renderHook(() => usePOI());
+    await act(flushMicrotasks);
+
+    await act(async () => {
+      result.current.fetchPOIs(
+        region(48.8566, 2.3522, 0.02, 0.02)
+      );
+      jest.advanceTimersByTime(400);
+      await flushMicrotasks();
+    });
+
+    await act(async () => {
+      result.current.fetchPOIs(
+        region(48.8566, 2.3522, 0.04, 0.04)
+      );
+      jest.advanceTimersByTime(400);
+      await flushMicrotasks();
+    });
+
+    expect(mockFetchPOIs).toHaveBeenCalledTimes(2);
+    expect(mockFetchPOIs.mock.calls[0][0]).not.toEqual(
+      mockFetchPOIs.mock.calls[1][0]
+    );
+  });
+
+  it('reuses loaded POIs while the viewport stays inside the fetched area', async () => {
+    mockFetchPOIs.mockResolvedValue([parisPOI]);
+    const { result } = renderHook(() => usePOI());
+    await act(flushMicrotasks);
+
+    await act(async () => {
+      result.current.fetchPOIs(region(48.8566, 2.3522));
+      jest.advanceTimersByTime(400);
+      await flushMicrotasks();
+    });
+
+    act(() => {
+      result.current.fetchPOIs(region(48.8586, 2.3542));
+      jest.advanceTimersByTime(400);
+    });
+
+    expect(mockFetchPOIs).toHaveBeenCalledTimes(1);
+    expect(result.current.pois).toEqual([parisPOI]);
+  });
+
+  it('keeps a pending request when it already covers the new viewport', async () => {
+    const firstRequest = deferred<POI[]>();
+    let firstSignal: AbortSignal | undefined;
+
+    mockFetchPOIs.mockImplementationOnce((_bbox, _categories, signal) => {
+      firstSignal = signal;
+      return firstRequest.promise;
+    });
+
+    const { result } = renderHook(() => usePOI());
+    await act(flushMicrotasks);
+
+    act(() => {
+      result.current.fetchPOIs(region(48.8566, 2.3522));
+      jest.advanceTimersByTime(400);
+    });
+
+    act(() => {
+      result.current.fetchPOIs(region(48.8586, 2.3542));
+      jest.advanceTimersByTime(400);
+    });
+
+    expect(mockFetchPOIs).toHaveBeenCalledTimes(1);
+    expect(firstSignal?.aborted).toBe(false);
+
+    await act(async () => {
+      firstRequest.resolve([parisPOI]);
+      await firstRequest.promise;
+      await flushMicrotasks();
+    });
+
+    expect(result.current.pois).toEqual([parisPOI]);
+  });
 });

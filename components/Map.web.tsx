@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, useMap, useMapEvents, ZoomControl } fr
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
-import { POI } from '../types/poi';
+import { MapRegion, POI } from '../types/poi';
 import { Route } from '../types/route';
 import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker.web';
@@ -13,13 +13,6 @@ import DangerChoropleth from './DangerChoropleth.web';
 import DangerHeatmap from './DangerHeatmap.web';
 import QPVOverlay from './QPVOverlay.web';
 import QRROverlay from './QRROverlay.web';
-
-interface MapRegion {
-  latitude: number;
-  longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
-}
 
 interface MapProps {
   latitude: number;

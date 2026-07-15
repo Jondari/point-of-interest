@@ -1,9 +1,16 @@
 import { Platform } from 'react-native';
-import { POI, POICategory, BoundingBox } from '../types/poi';
+import {
+  POI,
+  POICategory,
+  BoundingBox,
+  MapRegion,
+} from '../types/poi';
 import { API_CONFIG, OVERPASS_API_TIMEOUT } from '../constants/api';
 
 const MOBILE_USER_AGENT =
   'PointOfInterest (+https://github.com/Jondari/point-of-interest)';
+const METERS_PER_DEGREE = 111320;
+const DEFAULT_VIEWPORT_MARGIN_RATIO = 0.25;
 
 export class OverpassApiError extends Error {
   constructor(public readonly status: number) {
@@ -189,17 +196,54 @@ export async function fetchPOIs(
 }
 
 export function getBoundingBoxFromRegion(
-  latitude: number,
-  longitude: number,
-  radiusMeters: number
+  region: MapRegion,
+  maxRadiusMeters: number,
+  marginRatio: number = DEFAULT_VIEWPORT_MARGIN_RATIO
 ): BoundingBox {
-  const latDelta = radiusMeters / 111320;
-  const lonDelta = radiusMeters / (111320 * Math.cos(latitude * (Math.PI / 180)));
+  const margin = Math.max(0, marginRatio);
+  const latitude = Math.max(-90, Math.min(90, region.latitude));
+  const longitude = Math.max(-180, Math.min(180, region.longitude));
+  const latitudeCosine = Math.max(
+    Math.abs(Math.cos(latitude * (Math.PI / 180))),
+    Number.EPSILON
+  );
+
+  const viewportLatitudeRadius =
+    Math.abs(region.latitudeDelta) * (0.5 + margin);
+  const viewportLongitudeRadius =
+    Math.abs(region.longitudeDelta) * (0.5 + margin);
+
+  const maximumLatitudeRadius = maxRadiusMeters / METERS_PER_DEGREE;
+  const maximumLongitudeRadius = Math.min(
+    180,
+    maxRadiusMeters / (METERS_PER_DEGREE * latitudeCosine)
+  );
+
+  const latitudeRadius = Math.min(
+    viewportLatitudeRadius,
+    maximumLatitudeRadius
+  );
+  const longitudeRadius = Math.min(
+    viewportLongitudeRadius,
+    maximumLongitudeRadius
+  );
 
   return {
-    south: latitude - latDelta,
-    north: latitude + latDelta,
-    west: longitude - lonDelta,
-    east: longitude + lonDelta,
+    south: Math.max(-90, latitude - latitudeRadius),
+    north: Math.min(90, latitude + latitudeRadius),
+    west: Math.max(-180, longitude - longitudeRadius),
+    east: Math.min(180, longitude + longitudeRadius),
   };
+}
+
+export function isBoundingBoxContained(
+  inner: BoundingBox,
+  outer: BoundingBox
+): boolean {
+  return (
+    inner.south >= outer.south &&
+    inner.north <= outer.north &&
+    inner.west >= outer.west &&
+    inner.east <= outer.east
+  );
 }

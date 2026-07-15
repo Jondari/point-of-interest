@@ -1,12 +1,7 @@
 import { CommuneRenderData, HeatmapPoint } from '../types/dangerZone';
-import { POI } from '../types/poi';
+import { MapRegion, POI } from '../types/poi';
 
-export interface ViewportRegion {
-  latitude: number;
-  longitude: number;
-  latitudeDelta: number;
-  longitudeDelta: number;
-}
+export type ViewportRegion = MapRegion;
 
 const VIEWPORT_MARGIN_RATIO = 0.5;
 const POI_VIEWPORT_MARGIN_RATIO = 0.25;

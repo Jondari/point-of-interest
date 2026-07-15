@@ -19,7 +19,7 @@ Configuration is centralized in `types/poi.ts` via `POI_CATEGORY_CONFIG`.
 
 ```
 Map region changes
-  -> usePOI.fetchPOIs(lat, lon)
+  -> usePOI.fetchPOIs(region)
     -> overpassApi.fetchPOIs(bbox, categories)
       -> Overpass API (HTTP)
     -> setState(pois)
@@ -51,7 +51,8 @@ Returns:
 - `selectedPOI` — Currently selected POI or null
 
 Actions:
-- `fetchPOIs(lat, lon)` — Fetches POIs with deduplication
+- `fetchPOIs(region)` — Fetches POIs for the visible viewport and reuses the
+  current loaded or pending area while it still contains that viewport
 - `setFilters(partial)` — Updates and persists filters
 - `toggleCategory(category)` — Adds/removes a category
 - `selectPOI(poi | null)` — Sets selected POI
@@ -62,3 +63,7 @@ Actions:
 Filters and favorites are persisted via `stores/poiStore.ts`:
 - `poi_filters` — Selected categories and search radius
 - `poi_favorites` — List of favorited POI IDs
+
+The current fetched area is cached only in memory for the active filter set.
+Changing filters invalidates it. The cache is not persisted between app
+sessions and stores one area at a time.

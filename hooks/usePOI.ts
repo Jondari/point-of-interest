@@ -1,13 +1,41 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { POI, POIFilters, POICategory, DEFAULT_POI_FILTERS } from '../types/poi';
+import {
+  POI,
+  POIFilters,
+  POICategory,
+  BoundingBox,
+  MapRegion,
+  DEFAULT_POI_FILTERS,
+} from '../types/poi';
 import {
   fetchPOIs,
   getBoundingBoxFromRegion,
+  isBoundingBoxContained,
   OverpassApiError,
 } from '../services/overpassApi';
 import { poiStore } from '../stores/poiStore';
 
 const POI_DEBOUNCE_MS = 400;
+
+interface POIFetchCoverage {
+  bbox: BoundingBox;
+  categoriesKey: string;
+}
+
+function getCategoriesKey(categories: POICategory[]): string {
+  return [...categories].sort().join(',');
+}
+
+function canReuseCoverage(
+  coverage: POIFetchCoverage | null,
+  requestedViewport: BoundingBox,
+  categoriesKey: string
+): boolean {
+  return (
+    coverage?.categoriesKey === categoriesKey &&
+    isBoundingBoxContained(requestedViewport, coverage.bbox)
+  );
+}
 
 function getPOIFetchErrorKey(error: unknown): string {
   if (!(error instanceof OverpassApiError)) {
@@ -43,8 +71,8 @@ export function usePOI() {
     selectedPOI: null,
   });
 
-  const lastFetchRef = useRef<string | null>(null);
-  const pendingFetchRef = useRef<string | null>(null);
+  const lastCoverageRef = useRef<POIFetchCoverage | null>(null);
+  const pendingCoverageRef = useRef<POIFetchCoverage | null>(null);
   const requestIdRef = useRef(0);
   const requestControllerRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,48 +86,82 @@ export function usePOI() {
     setState(prev => ({ ...prev, filters: savedFilters }));
   };
 
-  const fetchPOIsForLocation = useCallback(
-    (latitude: number, longitude: number) => {
-      const fetchKey = `${latitude.toFixed(3)}-${longitude.toFixed(3)}-${state.filters.categories.join(',')}`;
+  const fetchPOIsForRegion = useCallback(
+    (region: MapRegion) => {
+      const requestedViewport = getBoundingBoxFromRegion(
+        region,
+        state.filters.searchRadius,
+        0
+      );
+      const queryBoundingBox = getBoundingBoxFromRegion(
+        region,
+        state.filters.searchRadius
+      );
+      const categoriesKey = getCategoriesKey(state.filters.categories);
+      const coverage: POIFetchCoverage = {
+        bbox: queryBoundingBox,
+        categoriesKey,
+      };
 
-      if (
-        lastFetchRef.current === fetchKey ||
-        pendingFetchRef.current === fetchKey
-      ) {
+      const canReuseLastCoverage = canReuseCoverage(
+        lastCoverageRef.current,
+        requestedViewport,
+        categoriesKey
+      );
+      const canReusePendingCoverage = canReuseCoverage(
+        pendingCoverageRef.current,
+        requestedViewport,
+        categoriesKey
+      );
+
+      if (canReuseLastCoverage && canReusePendingCoverage) {
         return;
       }
+
+      if (canReuseLastCoverage) {
+        requestIdRef.current += 1;
+        requestControllerRef.current?.abort();
+        requestControllerRef.current = null;
+
+        if (debounceRef.current) {
+          clearTimeout(debounceRef.current);
+          debounceRef.current = null;
+        }
+
+        pendingCoverageRef.current = null;
+        setState(prev => ({ ...prev, isLoading: false, error: null }));
+        return;
+      }
+
+      if (canReusePendingCoverage) return;
 
       requestIdRef.current += 1;
       requestControllerRef.current?.abort();
 
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
+        debounceRef.current = null;
       }
 
-      pendingFetchRef.current = fetchKey;
+      pendingCoverageRef.current = coverage;
       const requestId = requestIdRef.current;
 
       debounceRef.current = setTimeout(async () => {
+        debounceRef.current = null;
         const controller = new AbortController();
         requestControllerRef.current = controller;
         setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-        const bbox = getBoundingBoxFromRegion(
-          latitude,
-          longitude,
-          state.filters.searchRadius
-        );
-
         try {
           const pois = await fetchPOIs(
-            bbox,
+            queryBoundingBox,
             state.filters.categories,
             controller.signal
           );
 
           if (requestId !== requestIdRef.current) return;
 
-          lastFetchRef.current = fetchKey;
+          lastCoverageRef.current = coverage;
           setState(prev => ({
             ...prev,
             pois,
@@ -118,7 +180,7 @@ export function usePOI() {
         } finally {
           if (requestId === requestIdRef.current) {
             requestControllerRef.current = null;
-            pendingFetchRef.current = null;
+            pendingCoverageRef.current = null;
           }
         }
       }, POI_DEBOUNCE_MS);
@@ -135,8 +197,8 @@ export function usePOI() {
       clearTimeout(debounceRef.current);
       debounceRef.current = null;
     }
-    lastFetchRef.current = null;
-    pendingFetchRef.current = null;
+    lastCoverageRef.current = null;
+    pendingCoverageRef.current = null;
     await poiStore.setFilters(updatedFilters);
     setState(prev => ({ ...prev, filters: updatedFilters }));
   }, [state.filters]);
@@ -174,7 +236,7 @@ export function usePOI() {
     error: state.error,
     filters: state.filters,
     selectedPOI: state.selectedPOI,
-    fetchPOIs: fetchPOIsForLocation,
+    fetchPOIs: fetchPOIsForRegion,
     setFilters,
     toggleCategory,
     selectPOI,

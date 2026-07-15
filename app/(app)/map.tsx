@@ -17,11 +17,12 @@ import { useRoute } from '../../hooks/useRoute';
 import { useDangerZones } from '../../hooks/useDangerZones';
 import { DEFAULT_DANGER_ZONE_CONFIG } from '../../types/dangerZone';
 import { colors, spacing, fontSize, fontWeight, borderRadius } from '../../constants/theme';
-import { POI } from '../../types/poi';
+import { MapRegion, POI } from '../../types/poi';
 import { RoutePoint } from '../../types/route';
 
 const ARRIVAL_THRESHOLD_METERS = 30;
 const ROUTE_RECALCULATION_THRESHOLD_METERS = 50;
+const DEFAULT_MAP_REGION_DELTA = 0.02;
 
 function getDistanceMeters(
   lat1: number, lon1: number,
@@ -43,6 +44,7 @@ export default function MapScreen() {
   const { location, isLoading: locationLoading, errorMessage, refreshLocation, startWatching, stopWatching } = useLocation();
   const routeDestinationRef = useRef<RoutePoint | null>(null);
   const lastRouteOriginRef = useRef<RoutePoint | null>(null);
+  const mapRegionRef = useRef<MapRegion | null>(null);
   const { logout } = useAuth();
   const {
     pois,
@@ -87,7 +89,15 @@ export default function MapScreen() {
 
   useEffect(() => {
     if (location) {
-      fetchPOIs(location.latitude, location.longitude);
+      const region = mapRegionRef.current ?? {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: DEFAULT_MAP_REGION_DELTA,
+        longitudeDelta: DEFAULT_MAP_REGION_DELTA,
+      };
+
+      mapRegionRef.current = region;
+      fetchPOIs(region);
     }
   }, [location, filters.categories, fetchPOIs]);
 
@@ -170,8 +180,9 @@ export default function MapScreen() {
   }, [routeError, stopWatching]);
 
   const handleRegionChange = useCallback(
-    (region: { latitude: number; longitude: number }) => {
-      fetchPOIs(region.latitude, region.longitude);
+    (region: MapRegion) => {
+      mapRegionRef.current = region;
+      fetchPOIs(region);
     },
     [fetchPOIs]
   );

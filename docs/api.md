@@ -28,9 +28,11 @@ Builds an Overpass QL query filtering OSM nodes/ways by category tags, executes 
 | park | `leisure=park`, `leisure=garden` |
 | restaurant | `amenity=restaurant`, `amenity=cafe` |
 
-### `getBoundingBoxFromRegion(lat, lon, radiusMeters)`
+### `getBoundingBoxFromRegion(region, maxRadiusMeters)`
 
-Converts a center point and radius (default: 5000m) into a `BoundingBox` for Overpass queries.
+Converts the visible map region into a `BoundingBox`. A 25% margin is added
+on each side to reduce refetches during small movements. The persisted search
+radius, 5000m by default, remains the maximum distance from the center.
 
 ### Unnamed POI filtering
 
@@ -43,7 +45,10 @@ By default, POIs without a name are excluded from results (many monuments lack n
 - Client timeout: 30 seconds (via `AbortController`)
 - Overpass query timeout: 25 seconds (server-side)
 - HTTP 406, 429 and 504 errors are exposed with dedicated messages
-- Response limit: 500 elements max
+- Request bounds follow the visible map viewport with a 5000m maximum radius
+- The last successful bounding box is cached in memory for the active filters;
+  no request is sent while the visible viewport remains inside that area
+- A pending request is also reused when it already covers the visible viewport
 
 ## Configuration
 

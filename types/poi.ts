@@ -20,6 +20,13 @@ export interface POIFilters {
   searchRadius: number;
 }
 
+export interface MapRegion {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
+
 export interface BoundingBox {
   south: number;
   west: number;
