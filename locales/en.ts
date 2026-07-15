@@ -98,6 +98,9 @@ export default {
     call: "Call",
     openWebsite: "Open website",
     fetchError: "Unable to load points of interest",
+    clientRejectedError: "The point of interest service rejected the mobile request",
+    rateLimitError: "Too many requests. Please try again shortly",
+    gatewayTimeoutError: "The point of interest service is taking too long to respond",
     noResults: "No points of interest found",
   },
   routes: {

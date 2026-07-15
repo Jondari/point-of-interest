@@ -98,6 +98,9 @@ export default {
     call: "Appeler",
     openWebsite: "Ouvrir le site web",
     fetchError: "Impossible de charger les points d'intérêt",
+    clientRejectedError: "Le service de points d'intérêt a refusé la requête mobile",
+    rateLimitError: "Trop de requêtes. Réessayez dans quelques instants",
+    gatewayTimeoutError: "Le service de points d'intérêt met trop de temps à répondre",
     noResults: "Aucun point d'intérêt trouvé",
   },
   routes: {

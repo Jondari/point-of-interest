@@ -38,8 +38,11 @@ By default, POIs without a name are excluded from results (many monuments lack n
 
 ### Request handling
 
-- Timeout: 15 seconds (via `AbortController`)
+- Mobile requests send an identifiable application `User-Agent`
+- Web requests retain the browser-provided `User-Agent`
+- Client timeout: 30 seconds (via `AbortController`)
 - Overpass query timeout: 25 seconds (server-side)
+- HTTP 406, 429 and 504 errors are exposed with dedicated messages
 - Response limit: 500 elements max
 
 ## Configuration
@@ -53,6 +56,7 @@ API_CONFIG.OSRM_CAR_URL  // https://routing.openstreetmap.de/routed-car
 API_CONFIG.NAVITIA_URL   // https://api.navitia.io/v1
 DEFAULT_SEARCH_RADIUS    // 5000 (meters)
 API_TIMEOUT              // 15000 (ms)
+OVERPASS_API_TIMEOUT     // 30000 (ms)
 ```
 
 ## Environment Variables

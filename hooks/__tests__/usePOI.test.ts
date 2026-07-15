@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-native';
-import { fetchPOIs } from '../../services/overpassApi';
+import { fetchPOIs, OverpassApiError } from '../../services/overpassApi';
 import { poiStore } from '../../stores/poiStore';
 import { DEFAULT_POI_FILTERS, POI } from '../../types/poi';
 import { usePOI } from '../usePOI';
@@ -150,4 +150,26 @@ describe('usePOI', () => {
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe('poi.fetchError');
   });
+
+  it.each([
+    [406, 'poi.clientRejectedError'],
+    [429, 'poi.rateLimitError'],
+    [504, 'poi.gatewayTimeoutError'],
+  ])(
+    'maps Overpass HTTP %i to %s',
+    async (status, expectedError) => {
+      mockFetchPOIs.mockRejectedValueOnce(new OverpassApiError(status));
+      const { result } = renderHook(() => usePOI());
+      await act(flushMicrotasks);
+
+      await act(async () => {
+        result.current.fetchPOIs(48.8566, 2.3522);
+        jest.advanceTimersByTime(400);
+        await flushMicrotasks();
+      });
+
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.error).toBe(expectedError);
+    }
+  );
 });

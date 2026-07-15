@@ -98,6 +98,9 @@ export default {
     call: "拨打电话",
     openWebsite: "打开网站",
     fetchError: "无法加载兴趣点",
+    clientRejectedError: "兴趣点服务拒绝了移动端请求",
+    rateLimitError: "请求过多，请稍后重试",
+    gatewayTimeoutError: "兴趣点服务响应超时",
     noResults: "未找到兴趣点",
   },
   routes: {

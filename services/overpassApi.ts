@@ -1,5 +1,28 @@
+import { Platform } from 'react-native';
 import { POI, POICategory, BoundingBox } from '../types/poi';
-import { API_CONFIG, API_TIMEOUT } from '../constants/api';
+import { API_CONFIG, OVERPASS_API_TIMEOUT } from '../constants/api';
+
+const MOBILE_USER_AGENT =
+  'PointOfInterest (+https://github.com/Jondari/point-of-interest)';
+
+export class OverpassApiError extends Error {
+  constructor(public readonly status: number) {
+    super(`Overpass API error: ${status}`);
+    this.name = 'OverpassApiError';
+  }
+}
+
+function getOverpassHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  if (Platform.OS !== 'web') {
+    headers['User-Agent'] = MOBILE_USER_AGENT;
+  }
+
+  return headers;
+}
 
 interface OverpassElement {
   type: 'node' | 'way' | 'relation';
@@ -128,7 +151,10 @@ export async function fetchPOIs(
   const query = buildOverpassQuery(bbox, categories);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    OVERPASS_API_TIMEOUT
+  );
   const handleExternalAbort = () => controller.abort();
 
   if (signal?.aborted) {
@@ -140,15 +166,13 @@ export async function fetchPOIs(
   try {
     const response = await fetch(API_CONFIG.OVERPASS_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: getOverpassHeaders(),
       body: `data=${encodeURIComponent(query)}`,
       signal: controller.signal,
     });
 
     if (!response.ok) {
-      throw new Error(`Overpass API error: ${response.status}`);
+      throw new OverpassApiError(response.status);
     }
 
     const data: OverpassResponse = await response.json();

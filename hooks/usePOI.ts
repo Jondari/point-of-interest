@@ -1,9 +1,30 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { POI, POIFilters, POICategory, DEFAULT_POI_FILTERS } from '../types/poi';
-import { fetchPOIs, getBoundingBoxFromRegion } from '../services/overpassApi';
+import {
+  fetchPOIs,
+  getBoundingBoxFromRegion,
+  OverpassApiError,
+} from '../services/overpassApi';
 import { poiStore } from '../stores/poiStore';
 
 const POI_DEBOUNCE_MS = 400;
+
+function getPOIFetchErrorKey(error: unknown): string {
+  if (!(error instanceof OverpassApiError)) {
+    return 'poi.fetchError';
+  }
+
+  switch (error.status) {
+    case 406:
+      return 'poi.clientRejectedError';
+    case 429:
+      return 'poi.rateLimitError';
+    case 504:
+      return 'poi.gatewayTimeoutError';
+    default:
+      return 'poi.fetchError';
+  }
+}
 
 export interface POIState {
   pois: POI[];
@@ -84,7 +105,7 @@ export function usePOI() {
             pois,
             isLoading: false,
           }));
-        } catch {
+        } catch (error) {
           if (requestId !== requestIdRef.current || controller.signal.aborted) {
             return;
           }
@@ -92,7 +113,7 @@ export function usePOI() {
           setState(prev => ({
             ...prev,
             isLoading: false,
-            error: 'poi.fetchError',
+            error: getPOIFetchErrorKey(error),
           }));
         } finally {
           if (requestId === requestIdRef.current) {

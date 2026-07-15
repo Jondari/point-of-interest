@@ -23,3 +23,4 @@ export const ILE_DE_FRANCE_BOUNDS = {
 export const DEFAULT_SEARCH_RADIUS = 5000;
 
 export const API_TIMEOUT = 15000;
+export const OVERPASS_API_TIMEOUT = 30000;
