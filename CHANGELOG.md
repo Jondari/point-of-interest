@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.2](https://github.com/Jondari/point-of-interest/compare/v0.6.1...v0.6.2) (2026-07-15)
+
+
+### Bug Fixes
+
+* **poi:** identify mobile Overpass requests and handle API errors ([0671a51](https://github.com/Jondari/point-of-interest/commit/0671a5178e25b524e37d41ef40847ac978940c38))
+
 ### [0.6.1](https://github.com/Jondari/point-of-interest/compare/v0.6.0...v0.6.1) (2026-07-14)
 
 
