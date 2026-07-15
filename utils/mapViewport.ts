@@ -1,4 +1,5 @@
 import { CommuneRenderData, HeatmapPoint } from '../types/dangerZone';
+import { POI } from '../types/poi';
 
 export interface ViewportRegion {
   latitude: number;
@@ -8,6 +9,7 @@ export interface ViewportRegion {
 }
 
 const VIEWPORT_MARGIN_RATIO = 0.5;
+const POI_VIEWPORT_MARGIN_RATIO = 0.25;
 
 export function isPointWithinViewport(
   latitude: number,
@@ -42,4 +44,51 @@ export function filterHeatmapByViewport(
   return points.filter((point) =>
     isPointWithinViewport(point.latitude, point.longitude, region)
   );
+}
+
+function getDistanceFromViewportCenter(
+  poi: POI,
+  region: ViewportRegion
+): number {
+  const latitudeDistance = poi.latitude - region.latitude;
+  const rawLongitudeDistance = Math.abs(poi.longitude - region.longitude);
+  const longitudeDistance =
+    Math.min(rawLongitudeDistance, 360 - rawLongitudeDistance) *
+    Math.cos(region.latitude * (Math.PI / 180));
+
+  return (
+    latitudeDistance * latitudeDistance +
+    longitudeDistance * longitudeDistance
+  );
+}
+
+export function selectPOIsForViewport(
+  pois: POI[],
+  region: ViewportRegion,
+  limit: number
+): POI[] {
+  if (limit <= 0) {
+    return [];
+  }
+
+  return pois
+    .filter((poi) =>
+      isPointWithinViewport(
+        poi.latitude,
+        poi.longitude,
+        region,
+        POI_VIEWPORT_MARGIN_RATIO
+      )
+    )
+    .map((poi, index) => ({
+      poi,
+      index,
+      distance: getDistanceFromViewportCenter(poi, region),
+    }))
+    .sort(
+      (left, right) =>
+        left.distance - right.distance || left.index - right.index
+    )
+    .slice(0, limit)
+    .map(({ poi }) => poi);
 }

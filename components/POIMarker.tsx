@@ -1,6 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Platform, View, Text, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { POI, POI_CATEGORY_CONFIG } from '../types/poi';
+
+const ANDROID_TRACKING_DURATION_MS = 250;
 
 interface POIMarkerProps {
   poi: POI;
@@ -8,8 +11,29 @@ interface POIMarkerProps {
   isSelected?: boolean;
 }
 
-export default function POIMarker({ poi, onPress, isSelected }: POIMarkerProps) {
+export default function POIMarker({
+  poi,
+  onPress,
+  isSelected = false,
+}: POIMarkerProps) {
   const config = POI_CATEGORY_CONFIG[poi.category];
+  const [tracksViewChanges, setTracksViewChanges] = useState(
+    Platform.OS === 'android'
+  );
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    setTracksViewChanges(true);
+
+    const timeoutId = setTimeout(() => {
+      setTracksViewChanges(false);
+    }, ANDROID_TRACKING_DURATION_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [isSelected]);
 
   return (
     <Marker
@@ -18,7 +42,7 @@ export default function POIMarker({ poi, onPress, isSelected }: POIMarkerProps) 
         longitude: poi.longitude,
       }}
       onPress={() => onPress(poi)}
-      tracksViewChanges={false}
+      tracksViewChanges={tracksViewChanges}
     >
       <View style={[styles.marker, isSelected && styles.markerSelected]}>
         <View

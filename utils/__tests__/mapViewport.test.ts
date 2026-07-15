@@ -1,8 +1,10 @@
 import { CommuneRenderData, HeatmapPoint } from '../../types/dangerZone';
+import { POI } from '../../types/poi';
 import {
   filterCommunesByViewport,
   filterHeatmapByViewport,
   isPointWithinViewport,
+  selectPOIsForViewport,
   ViewportRegion,
 } from '../mapViewport';
 
@@ -15,6 +17,17 @@ const parisRegion: ViewportRegion = {
 
 function commune(codeCommune: string, centerLat: number, centerLon: number) {
   return { codeCommune, centerLat, centerLon } as CommuneRenderData;
+}
+
+function poi(id: string, latitude: number, longitude: number): POI {
+  return {
+    id,
+    name: id,
+    category: 'museum',
+    latitude,
+    longitude,
+    tags: {},
+  };
 }
 
 describe('mapViewport', () => {
@@ -38,5 +51,39 @@ describe('mapViewport', () => {
     ];
 
     expect(filterHeatmapByViewport(points, parisRegion)).toEqual([points[0]]);
+  });
+
+  it('keeps the closest visible POIs up to the requested limit', () => {
+    const closest = poi('closest', 48.857, 2.352);
+    const second = poi('second', 48.87, 2.36);
+    const outside = poi('outside', 49.1, 2.35);
+
+    expect(
+      selectPOIsForViewport(
+        [second, outside, closest],
+        parisRegion,
+        1
+      )
+    ).toEqual([closest]);
+  });
+
+  it('does not mutate the original POI order', () => {
+    const farther = poi('farther', 48.87, 2.36);
+    const closest = poi('closest', 48.857, 2.352);
+    const pois = [farther, closest];
+
+    selectPOIsForViewport(pois, parisRegion, 2);
+
+    expect(pois).toEqual([farther, closest]);
+  });
+
+  it('returns no POI when the limit is not positive', () => {
+    expect(
+      selectPOIsForViewport(
+        [poi('museum', 48.8566, 2.3522)],
+        parisRegion,
+        0
+      )
+    ).toEqual([]);
   });
 });

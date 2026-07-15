@@ -11,7 +11,13 @@ import DangerChoropleth from './DangerChoropleth';
 import DangerHeatmap from './DangerHeatmap';
 import QPVOverlay from './QPVOverlay';
 import QRROverlay from './QRROverlay';
-import { filterCommunesByViewport, filterHeatmapByViewport } from '../utils/mapViewport';
+import {
+  filterCommunesByViewport,
+  filterHeatmapByViewport,
+  selectPOIsForViewport,
+} from '../utils/mapViewport';
+
+const MAX_MOBILE_POI_MARKERS = 100;
 
 interface MapProps {
   latitude: number;
@@ -64,6 +70,14 @@ export default function Map({
   const visibleHeatmapPoints = useMemo(
     () => filterHeatmapByViewport(dangerZoneProps?.heatmapPoints ?? [], visibleRegion),
     [dangerZoneProps?.heatmapPoints, visibleRegion]
+  );
+  const visiblePOIs = useMemo(
+    () => selectPOIsForViewport(
+      pois,
+      visibleRegion,
+      MAX_MOBILE_POI_MARKERS
+    ),
+    [pois, visibleRegion]
   );
 
   const handleRegionChangeComplete = useCallback(
@@ -127,7 +141,7 @@ export default function Map({
           <QRROverlay features={dangerZoneProps.qrrData} />
         )}
 
-        {pois.map(poi => (
+        {visiblePOIs.map(poi => (
           <POIMarker
             key={poi.id}
             poi={poi}
