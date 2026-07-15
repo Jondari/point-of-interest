@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/Jondari/point-of-interest/compare/v0.6.4...v0.7.0) (2026-07-15)
+
+
+### Features
+
+* **directory:** add local POI map with route planning ([f6fb4f2](https://github.com/Jondari/point-of-interest/commit/f6fb4f2e70bba5065152afce5ab4c60b5d5a1922))
+
 ### [0.6.4](https://github.com/Jondari/point-of-interest/compare/v0.6.3...v0.6.4) (2026-07-15)
 
 
