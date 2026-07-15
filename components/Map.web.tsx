@@ -6,13 +6,19 @@ import 'leaflet/dist/leaflet.css';
 import { colors } from '../constants/theme';
 import { MapRegion, POI } from '../types/poi';
 import { Route } from '../types/route';
+import { OfflinePOI } from '../types/offlinePoi';
 import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker.web';
+import OfflinePOIMarker from './OfflinePOIMarker.web';
 import RoutePolyline from './RoutePolyline.web';
 import DangerChoropleth from './DangerChoropleth.web';
 import DangerHeatmap from './DangerHeatmap.web';
 import QPVOverlay from './QPVOverlay.web';
 import QRROverlay from './QRROverlay.web';
+import {
+  groupOfflinePOIsByCoordinates,
+  OfflinePOIGroup,
+} from '../utils/offlinePoiMap';
 
 interface MapProps {
   latitude: number;
@@ -21,6 +27,9 @@ interface MapProps {
   pois?: POI[];
   selectedPOI?: POI | null;
   onPOIPress?: (poi: POI) => void;
+  offlinePois?: OfflinePOI[];
+  selectedOfflinePOI?: OfflinePOI | null;
+  onOfflinePOIGroupPress?: (group: OfflinePOIGroup) => void;
   onRegionChangeComplete?: (region: MapRegion) => void;
   route?: Route | null;
   dangerZoneProps?: {
@@ -52,16 +61,44 @@ const userIcon = L.divIcon({
   iconAnchor: [12, 12],
 });
 
-function MapController({ latitude, longitude }: { latitude: number; longitude: number }) {
+function MapController({
+  latitude,
+  longitude,
+  offlinePois,
+  selectedOfflinePOI,
+}: {
+  latitude: number;
+  longitude: number;
+  offlinePois: OfflinePOI[];
+  selectedOfflinePOI?: OfflinePOI | null;
+}) {
   const map = useMap();
   const initialRef = useRef(true);
 
   useEffect(() => {
+    if (selectedOfflinePOI) {
+      map.setView(
+        [selectedOfflinePOI.latitude, selectedOfflinePOI.longitude],
+        16
+      );
+      initialRef.current = false;
+      return;
+    }
+
+    if (offlinePois.length > 0) {
+      map.fitBounds(
+        offlinePois.map((poi) => [poi.latitude, poi.longitude] as [number, number]),
+        { padding: [50, 50], maxZoom: 15 }
+      );
+      initialRef.current = false;
+      return;
+    }
+
     if (initialRef.current) {
       map.setView([latitude, longitude], 15);
       initialRef.current = false;
     }
-  }, [map, latitude, longitude]);
+  }, [map, latitude, longitude, offlinePois, selectedOfflinePOI]);
 
   return null;
 }
@@ -99,10 +136,14 @@ export default function Map({
   pois = [],
   selectedPOI,
   onPOIPress,
+  offlinePois = [],
+  selectedOfflinePOI,
+  onOfflinePOIGroupPress,
   onRegionChangeComplete,
   route = null,
   dangerZoneProps,
 }: MapProps) {
+  const offlinePOIGroups = groupOfflinePOIsByCoordinates(offlinePois);
   const handlePOIPress = useCallback(
     (poi: POI) => {
       onPOIPress?.(poi);
@@ -123,7 +164,12 @@ export default function Map({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapController latitude={latitude} longitude={longitude} />
+        <MapController
+          latitude={latitude}
+          longitude={longitude}
+          offlinePois={offlinePois}
+          selectedOfflinePOI={selectedOfflinePOI}
+        />
         <MapEventHandler onRegionChangeComplete={onRegionChangeComplete} />
 
         {dangerZoneProps?.isVisible && dangerZoneProps.renderMode === 'choropleth' && (
@@ -153,6 +199,17 @@ export default function Map({
             poi={poi}
             onPress={handlePOIPress}
             isSelected={selectedPOI?.id === poi.id}
+          />
+        ))}
+
+        {offlinePOIGroups.map((group) => (
+          <OfflinePOIMarker
+            key={group.id}
+            group={group}
+            isSelected={group.pois.some(
+              (poi) => poi.id === selectedOfflinePOI?.id
+            )}
+            onPress={(pressedGroup) => onOfflinePOIGroupPress?.(pressedGroup)}
           />
         ))}
 

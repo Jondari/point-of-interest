@@ -13,12 +13,27 @@ contains Berlin and Frankfurt; Greece contains Athens.
 - Country and city metadata are bundled in `data/offlinePois.ts`.
 - Destination POIs may be split into modules under `data/offlinePois/`.
 - Search and category filtering run locally through `services/offlinePoiService.ts`.
-- The directory does not call Overpass, OSRM or any other remote API.
+- Directory browsing, search and map markers do not call Overpass or another POI API.
+- The local guide map uses the coordinates bundled with each `OfflinePOI`.
+- Map tiles depend on the configured native/web map provider and may require a connection.
+- An itinerary is optional and calls OSRM only after the user selects a POI and taps
+  the directions action.
 - POI images are optional and must be bundled as static assets when provided.
 - Addresses can be copied with `expo-clipboard` on Android, iOS and web.
 
 External website and source URLs are displayed as reference information. The
 directory never opens or fetches them automatically.
+
+## Local guide map
+
+Each city screen opens a map containing only the destination's bundled POIs. A
+detail screen can open the same map with its POI selected. POIs sharing the exact
+same coordinates are displayed as one numbered marker; tapping it lets the user
+choose the desired entry.
+
+Opening the local guide does not request location permission. The app requests GPS
+access only when the user asks for directions, then sends the current and destination
+coordinates to the existing OSRM routing service. No Overpass request is involved.
 
 ## Data structure
 

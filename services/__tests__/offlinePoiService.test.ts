@@ -1,8 +1,10 @@
 import { OFFLINE_CITIES, OFFLINE_COUNTRIES, OFFLINE_POIS } from '../../data/offlinePois';
 import {
   getOfflineCities,
+  getOfflineCity,
   getOfflineCountries,
   getOfflineCountry,
+  getOfflinePOIs,
   searchOfflinePOIs,
 } from '../offlinePoiService';
 import {
@@ -61,6 +63,23 @@ describe('offlinePoiService country navigation', () => {
     ]);
     expect(getOfflineCities('greece').map((city) => city.id)).toEqual(['athens']);
     expect(getOfflineCountry('france')?.name.fr).toBe('France');
+    expect(getOfflineCity('paris')?.countryId).toBe('france');
+  });
+
+  it('provides usable coordinates for every offline POI', () => {
+    for (const city of getOfflineCities()) {
+      const pois = getOfflinePOIs(city.id);
+
+      expect(pois.length).toBeGreaterThan(0);
+      for (const poi of pois) {
+        expect(Number.isFinite(poi.latitude)).toBe(true);
+        expect(Number.isFinite(poi.longitude)).toBe(true);
+        expect(poi.latitude).toBeGreaterThanOrEqual(-90);
+        expect(poi.latitude).toBeLessThanOrEqual(90);
+        expect(poi.longitude).toBeGreaterThanOrEqual(-180);
+        expect(poi.longitude).toBeLessThanOrEqual(180);
+      }
+    }
   });
 
   it('provides 15 offline POIs for every Spanish destination', () => {

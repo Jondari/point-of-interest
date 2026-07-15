@@ -14,11 +14,15 @@ export interface LocationState {
   permissionStatus: Location.PermissionStatus | null;
 }
 
-export function useLocation() {
+export interface UseLocationOptions {
+  autoInitialize?: boolean;
+}
+
+export function useLocation({ autoInitialize = true }: UseLocationOptions = {}) {
   const [state, setState] = useState<LocationState>({
     location: null,
     errorMessage: null,
-    isLoading: true,
+    isLoading: autoInitialize,
     permissionStatus: null,
   });
   const watchSubscriptionRef = useRef<Location.LocationSubscription | null>(null);
@@ -140,6 +144,10 @@ export function useLocation() {
     }
   }, []);
 
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, errorMessage: null }));
+  }, []);
+
   const initLocation = useCallback(async () => {
     const hasPermission = await requestPermission();
     if (hasPermission) {
@@ -148,11 +156,14 @@ export function useLocation() {
   }, [requestPermission, getCurrentLocation]);
 
   useEffect(() => {
-    initLocation();
+    if (autoInitialize) {
+      void initLocation();
+    }
+
     return () => {
       stopWatching();
     };
-  }, [initLocation, stopWatching]);
+  }, [autoInitialize, initLocation, stopWatching]);
 
   return {
     ...state,
@@ -161,5 +172,6 @@ export function useLocation() {
     refreshLocation: getCurrentLocation,
     startWatching,
     stopWatching,
+    clearError,
   };
 }

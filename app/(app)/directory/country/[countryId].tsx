@@ -15,6 +15,7 @@ import OfflinePOICard from '../../../../components/OfflinePOICard';
 import {
   getOfflineCities,
   getOfflineCountry,
+  getOfflinePOIs,
   searchOfflinePOIs,
 } from '../../../../services/offlinePoiService';
 import {
@@ -82,6 +83,15 @@ export default function OfflineCountryDirectoryScreen() {
     });
   };
 
+  const handleOpenCityMap = () => {
+    if (!cityId) return;
+
+    router.push({
+      pathname: '/(app)/directory/map/[cityId]',
+      params: { cityId },
+    });
+  };
+
   if (!country || !cityId) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -143,6 +153,16 @@ export default function OfflineCountryDirectoryScreen() {
             );
           })}
         </ScrollView>
+
+        <TouchableOpacity
+          style={styles.mapButton}
+          onPress={handleOpenCityMap}
+          accessibilityRole="button"
+        >
+          <Text style={styles.mapButtonText}>
+            {t('directory.viewCityMap', { count: getOfflinePOIs(cityId).length })}
+          </Text>
+        </TouchableOpacity>
 
         <TextInput
           style={styles.searchInput}
@@ -272,6 +292,21 @@ const styles = StyleSheet.create({
   },
   cityTextSelected: {
     color: colors.white,
+  },
+  mapButton: {
+    minHeight: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    backgroundColor: '#147D64',
+    paddingHorizontal: spacing.md,
+  },
+  mapButtonText: {
+    color: colors.white,
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold,
+    textAlign: 'center',
   },
   searchInput: {
     minHeight: 48,

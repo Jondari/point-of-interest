@@ -63,6 +63,13 @@ export default function OfflinePOIDetailScreen() {
     copiedTimeoutRef.current = setTimeout(() => setCopied(false), 2500);
   };
 
+  const openMap = () => {
+    router.push({
+      pathname: '/(app)/directory/map/[cityId]',
+      params: { cityId: poi.cityId, poiId: poi.id },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -119,6 +126,14 @@ export default function OfflinePOIDetailScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity
+            style={styles.mapButton}
+            onPress={openMap}
+            accessibilityRole="button"
+          >
+            <Text style={styles.mapButtonText}>{t('directory.viewOnMap')}</Text>
+          </TouchableOpacity>
 
           <Text style={styles.description}>{description}</Text>
 
@@ -316,6 +331,20 @@ const styles = StyleSheet.create({
   copyButtonText: {
     color: colors.white,
     fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold,
+  },
+  mapButton: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: borderRadius.md,
+    backgroundColor: '#147D64',
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.sm,
+  },
+  mapButtonText: {
+    color: colors.white,
+    fontSize: fontSize.md,
     fontWeight: fontWeight.bold,
   },
   description: {

@@ -37,6 +37,7 @@ export default function AppLayout() {
       <Stack.Screen name="map" />
       <Stack.Screen name="directory/index" />
       <Stack.Screen name="directory/[poiId]" />
+      <Stack.Screen name="directory/map/[cityId]" />
     </Stack>
   );
 }

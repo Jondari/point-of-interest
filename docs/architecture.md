@@ -9,12 +9,20 @@ app/
   (app)/
     _layout.tsx            # Auth guard for protected routes
     map.tsx                # Main screen with map and POI
+    directory/
+      index.tsx            # Offline country selection
+      [poiId].tsx          # Offline POI details
+      country/[countryId].tsx # City list, search and filters
+      map/[cityId].tsx     # Local bundled-POI map and optional route
 
 components/
   Map.tsx                  # Native map (react-native-maps + OSM)
   Map.web.tsx              # Web map (react-leaflet)
   POIMarker.tsx            # Native POI marker
   POIMarker.web.tsx        # Web POI marker (Leaflet divIcon)
+  OfflinePOIMarker.tsx     # Native bundled-POI marker/group
+  OfflinePOIMarker.web.tsx # Web bundled-POI marker/group
+  OfflinePOIMapCard.tsx    # Local map selection and actions
   CategoryFilter.tsx       # Category filter bar (chips)
   POICard.tsx              # Selected POI detail card
   RoutePolyline.tsx        # Native route path
@@ -47,13 +55,17 @@ services/
   overpassApi.ts           # Overpass API client (OpenStreetMap)
   osrmApi.ts               # OSRM routing client (walking/driving)
   crimeDataService.ts      # Crime data loading and color computation
+  offlinePoiService.ts     # Bundled directory lookup and search
 
 types/
   poi.ts                   # POI, categories, filters
+  offlinePoi.ts            # Bundled country, city and POI models
   route.ts                 # Route, steps, transport modes
   dangerZone.ts            # Commune, heatmap and config types
 
 data/
+  offlinePois.ts           # Bundled directory index and legacy entries
+  offlinePois/             # Destination POI modules
   idf-crime-data.json      # Embedded IDF crime dataset (~1.1 MB, 1285 communes)
   qpv-idf.json             # QPV polygons for IDF (298 zones)
   qrr-idf.json             # QRR polygons for IDF (16 zones)
@@ -75,7 +87,7 @@ locales/
 
 The app uses React Native's platform extension resolution to serve different map implementations:
 
-- **Native (iOS/Android)**: `Map.tsx`, `POIMarker.tsx`, `RoutePolyline.tsx`, `DangerChoropleth.tsx`, `DangerHeatmap.tsx`, `QPVOverlay.tsx` and `QRROverlay.tsx` use `react-native-maps` with an OpenStreetMap `UrlTile` overlay.
+- **Native (iOS/Android)**: `Map.tsx`, native markers, route and safety overlays use `react-native-maps` with the configured native map provider.
 - **Web**: `Map.web.tsx`, `POIMarker.web.tsx`, `RoutePolyline.web.tsx`, `DangerChoropleth.web.tsx`, `DangerHeatmap.web.tsx`, `QPVOverlay.web.tsx` and `QRROverlay.web.tsx` use `react-leaflet` with Leaflet's tile layer.
 
 Metro/Expo automatically resolves `.web.tsx` files for the web platform.
@@ -102,6 +114,6 @@ Currently supports guest login only. The auth flow is:
 ## Internationalization
 
 - **Library**: i18next + react-i18next
-- **Supported languages**: French (default), English
+- **Supported languages**: French (default), English, Chinese
 - **Detection**: Device locale via `expo-localization`, with fallback to French
 - **Persistence**: User language choice saved via `languageStore` and restored on app start

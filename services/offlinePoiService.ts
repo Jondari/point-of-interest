@@ -56,6 +56,10 @@ export function getOfflineCities(countryId?: OfflineCountryId): OfflineCity[] {
     : OFFLINE_CITIES;
 }
 
+export function getOfflineCity(cityId: OfflineCityId): OfflineCity | undefined {
+  return OFFLINE_CITIES.find((city) => city.id === cityId);
+}
+
 export function getOfflinePOIs(cityId: OfflineCityId): OfflinePOI[] {
   return OFFLINE_POIS.filter((poi) => poi.cityId === cityId);
 }

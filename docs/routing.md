@@ -4,6 +4,10 @@
 
 The routing feature calculates and displays walking/driving routes from the user's current location to a selected POI using the OSRM (Open Source Routing Machine) API.
 
+It is available both from the live nearby-POI map and from the local directory map.
+The local directory supplies destination coordinates from bundled data and never
+uses Overpass to create the itinerary.
+
 ## Architecture
 
 ```
@@ -75,6 +79,20 @@ Actions:
 - `clearRoute()` — Resets all route state
 
 The hook stores `lastFromRef` / `lastToRef` to automatically recalculate when the transport mode changes.
+
+## Local directory route
+
+Opening a city map does not initialize `useLocation`. The local guide passes
+`{ autoInitialize: false }`, so the map and bundled markers remain accessible
+without GPS permission. When the user taps the directions action, the app:
+
+1. Requests foreground location permission.
+2. Retrieves the current position.
+3. Uses the selected bundled POI coordinates as the destination.
+4. Calls `useRoute.calculateRoute` and renders the standard route components.
+
+Unlike the live map, the local guide does not start continuous position tracking.
+Changing walking/driving mode still recalculates the route through `useRoute`.
 
 ## Real-time Position Tracking
 

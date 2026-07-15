@@ -1,12 +1,14 @@
-import { useRef, useCallback, useMemo, useState } from 'react';
+import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { colors } from '../constants/theme';
 import { POI } from '../types/poi';
 import { Route } from '../types/route';
+import { OfflinePOI } from '../types/offlinePoi';
 import { CommuneRenderData, HeatmapPoint, DangerZoneConfig, DangerRenderMode, QPVFeature, QRRFeature } from '../types/dangerZone';
 import POIMarker from './POIMarker';
 import POIClusterMarker from './POIClusterMarker';
+import OfflinePOIMarker from './OfflinePOIMarker';
 import RoutePolyline from './RoutePolyline';
 import DangerChoropleth from './DangerChoropleth';
 import DangerHeatmap from './DangerHeatmap';
@@ -20,6 +22,10 @@ import {
   POICluster,
 } from '../utils/mapViewport';
 import { getPOILimits } from '../constants/poiLimits';
+import {
+  groupOfflinePOIsByCoordinates,
+  OfflinePOIGroup,
+} from '../utils/offlinePoiMap';
 
 const MAX_MOBILE_POI_MARKERS =
   getPOILimits('mobile').renderedMarkers;
@@ -32,6 +38,9 @@ interface MapProps {
   pois?: POI[];
   selectedPOI?: POI | null;
   onPOIPress?: (poi: POI) => void;
+  offlinePois?: OfflinePOI[];
+  selectedOfflinePOI?: OfflinePOI | null;
+  onOfflinePOIGroupPress?: (group: OfflinePOIGroup) => void;
   onRegionChangeComplete?: (region: Region) => void;
   route?: Route | null;
   dangerZoneProps?: {
@@ -56,11 +65,15 @@ export default function Map({
   pois = [],
   selectedPOI,
   onPOIPress,
+  offlinePois = [],
+  selectedOfflinePOI,
+  onOfflinePOIGroupPress,
   onRegionChangeComplete,
   route = null,
   dangerZoneProps,
 }: MapProps) {
   const mapRef = useRef<MapView>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
   const [visibleRegion, setVisibleRegion] = useState<Region>({
     latitude,
     longitude,
@@ -84,6 +97,45 @@ export default function Map({
     ),
     [pois, visibleRegion]
   );
+  const offlinePOIGroups = useMemo(
+    () => groupOfflinePOIsByCoordinates(offlinePois),
+    [offlinePois]
+  );
+
+  useEffect(() => {
+    if (!isMapReady || offlinePois.length === 0) {
+      return;
+    }
+
+    if (selectedOfflinePOI) {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: selectedOfflinePOI.latitude,
+          longitude: selectedOfflinePOI.longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        },
+        300
+      );
+      return;
+    }
+
+    mapRef.current?.fitToCoordinates(
+      offlinePois.map((poi) => ({
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+      })),
+      {
+        edgePadding: { top: 80, right: 50, bottom: 220, left: 50 },
+        animated: true,
+      }
+    );
+  }, [isMapReady, offlinePois, selectedOfflinePOI]);
+
+  const handleMapReady = useCallback(() => {
+    setIsMapReady(true);
+    onMapReady?.();
+  }, [onMapReady]);
 
   const handleRegionChangeComplete = useCallback(
     (region: Region) => {
@@ -128,7 +180,7 @@ export default function Map({
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
         }}
-        onMapReady={onMapReady}
+        onMapReady={handleMapReady}
         onRegionChangeComplete={handleRegionChangeComplete}
         showsUserLocation={false}
         showsMyLocationButton={false}
@@ -169,6 +221,17 @@ export default function Map({
             />
           )
         )}
+
+        {offlinePOIGroups.map((group) => (
+          <OfflinePOIMarker
+            key={group.id}
+            group={group}
+            isSelected={group.pois.some(
+              (poi) => poi.id === selectedOfflinePOI?.id
+            )}
+            onPress={(pressedGroup) => onOfflinePOIGroupPress?.(pressedGroup)}
+          />
+        ))}
 
         {route && <RoutePolyline route={route} />}
 
