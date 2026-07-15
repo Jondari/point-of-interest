@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.6.3](https://github.com/Jondari/point-of-interest/compare/v0.6.2...v0.6.3) (2026-07-15)
+
+
+### Bug Fixes
+
+* **map:** load and cache POIs by visible viewport ([12a1a47](https://github.com/Jondari/point-of-interest/commit/12a1a47e5d90f5e53a99dbfc1e4408f9d6b2c198))
+* **maps:** stabilize and limit POI markers on Android ([4f4de22](https://github.com/Jondari/point-of-interest/commit/4f4de224d2fb5206bc47861f33ec53c6660e1afe))
+
 ### [0.6.2](https://github.com/Jondari/point-of-interest/compare/v0.6.1...v0.6.2) (2026-07-15)
 
 
