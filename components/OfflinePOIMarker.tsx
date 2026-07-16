@@ -43,17 +43,26 @@ export default function OfflinePOIMarker({
       coordinate={{ latitude: group.latitude, longitude: group.longitude }}
       onPress={() => onPress(group)}
       tracksViewChanges={tracksViewChanges}
+      anchor={{ x: 0.5, y: 0.5 }}
     >
-      <View style={[styles.marker, isSelected && styles.markerSelected]}>
-        <Text style={isGroup ? styles.count : styles.emoji}>
-          {isGroup ? group.pois.length : config.emoji}
-        </Text>
+      <View style={styles.markerCanvas}>
+        <View style={[styles.marker, isSelected && styles.markerSelected]}>
+          <Text style={isGroup ? styles.count : styles.emoji}>
+            {isGroup ? group.pois.length : config.emoji}
+          </Text>
+        </View>
       </View>
     </Marker>
   );
 }
 
 const styles = StyleSheet.create({
+  markerCanvas: {
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   marker: {
     width: 40,
     height: 40,
