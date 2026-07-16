@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/Jondari/point-of-interest/compare/v0.7.0...v0.7.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* **directory:** correct offline POI assets, icons and coordinates ([bc36cab](https://github.com/Jondari/point-of-interest/commit/bc36cab5f5005bf69e1872a57e7bb570947dc06b))
+
 ## [0.7.0](https://github.com/Jondari/point-of-interest/compare/v0.6.4...v0.7.0) (2026-07-15)
 
 
