@@ -102,8 +102,8 @@ export const OFFLINE_POI_CATEGORY_CONFIG: Record<
   landmark: { emoji: '🏛️', labelKey: 'directory.categories.landmark' },
   museum: { emoji: '🖼️', labelKey: 'directory.categories.museum' },
   park: { emoji: '🌳', labelKey: 'directory.categories.park' },
-  religious: { emoji: '⛩️', labelKey: 'directory.categories.religious' },
-  historic: { emoji: '🏯', labelKey: 'directory.categories.historic' },
+  religious: { emoji: '⛪', labelKey: 'directory.categories.religious' },
+  historic: { emoji: '🏰', labelKey: 'directory.categories.historic' },
 };
 
 export function getLocalizedText(text: LocalizedText, language: string): string {

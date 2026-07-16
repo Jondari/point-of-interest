@@ -404,7 +404,7 @@ resized, cropped to a 3:2 ratio and converted to WebP.
 | `assets/offline-pois/qingdao/railway-station.webp` | N509FZ | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [East façade of Qingdao Railway Station (20191003074615).jpg](https://commons.wikimedia.org/wiki/File:East_fa%C3%A7ade_of_Qingdao_Railway_Station_(20191003074615).jpg) |
 | `assets/offline-pois/qingdao/zhongshan-park.webp` | Sprt98 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [青岛中山公园樱花路20221027.jpg](https://commons.wikimedia.org/wiki/File:%E9%9D%92%E5%B2%9B%E4%B8%AD%E5%B1%B1%E5%85%AC%E5%9B%AD%E6%A8%B1%E8%8A%B1%E8%B7%AF20221027.jpg) |
 | `assets/offline-pois/qingdao/laoshan.webp` | Pratyeka | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [Laoshan-mountain-with-rocks.jpg](https://commons.wikimedia.org/wiki/File:Laoshan-mountain-with-rocks.jpg) |
-| `assets/offline-pois/qingdao/art-museum.webp` | StefanTsingtauer | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [青岛安徽路16号 2015-01-31.jpg](https://commons.wikimedia.org/wiki/File:%E9%9D%92%E5%B2%9B%E5%AE%89%E5%BE%BD%E8%B7%AF16%E5%8F%B7_2015-01-31.jpg) |
+| `assets/offline-pois/qingdao/art-museum.webp` | StefanTsingtauer | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [青岛万字会旧址.jpg](https://commons.wikimedia.org/wiki/File:%E9%9D%92%E5%B2%9B%E4%B8%87%E5%AD%97%E4%BC%9A%E6%97%A7%E5%9D%80.jpg) |
 | `assets/offline-pois/qingdao/st-michaels-cathedral.webp` | Windmemories | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [20240730 St. Michael's Cathedral, Qingdao 01.jpg](https://commons.wikimedia.org/wiki/File:20240730_St._Michael%27s_Cathedral,_Qingdao_01.jpg) |
 
 

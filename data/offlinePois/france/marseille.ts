@@ -75,7 +75,7 @@ const seeds: FrenchPOISeed[] = [
     id: 'marseille-cosquer', cityId: 'marseille', category: 'museum', image: require('../../../assets/offline-pois/marseille/cosquer.webp'), imageCredit: CREDIT,
     name: { fr: 'Cosquer Méditerranée', en: 'Cosquer Méditerranée', zh: '地中海科斯克' }, address: { fr: 'Promenade Robert-Laffont, 13002 Marseille, France', en: 'Promenade Robert-Laffont, 13002 Marseille, France', zh: '罗伯特-拉丰长廊, 13002 马赛, 法国' },
     description: { fr: 'Restitution immersive de la grotte Cosquer et de ses œuvres préhistoriques aujourd’hui en partie submergées.', en: 'An immersive reconstruction of Cosquer Cave and its prehistoric art, now partly submerged.', zh: '科斯克洞穴及其史前艺术的沉浸式重建，现已部分淹没。' },
-    highlights: [{ fr: 'Réplique de la grotte', en: 'Cave replica', zh: '洞穴复制品' }, { fr: 'Art pariétal préhistorique', en: 'Prehistoric cave art', zh: '史前洞穴艺术' }], suggestedDurationMinutes: 120, latitude: 43.296, longitude: 5.362, website: 'https://www.grotte-cosquer.com/', sourceUrl: SOURCE,
+    highlights: [{ fr: 'Réplique de la grotte', en: 'Cave replica', zh: '洞穴复制品' }, { fr: 'Art pariétal préhistorique', en: 'Prehistoric cave art', zh: '史前洞穴艺术' }], suggestedDurationMinutes: 120, latitude: 43.2970701, longitude: 5.3620720, website: 'https://www.grotte-cosquer.com/', sourceUrl: SOURCE,
   },
   {
     id: 'marseille-pharo', cityId: 'marseille', category: 'landmark', image: require('../../../assets/offline-pois/marseille/pharo.webp'), imageCredit: CREDIT,
@@ -87,7 +87,7 @@ const seeds: FrenchPOISeed[] = [
     id: 'marseille-fort-saint-jean', cityId: 'marseille', category: 'historic', image: require('../../../assets/offline-pois/marseille/fort-saint-jean.webp'), imageCredit: CREDIT,
     name: { fr: 'Fort Saint-Jean', en: 'Fort Saint-Jean', zh: '圣让堡' }, address: { fr: 'Promenade Louis-Braille, 13002 Marseille, France', en: 'Promenade Louis-Braille, 13002 Marseille, France', zh: 'Promenade Louis-Braille, 13002 马赛, 法国' },
     description: { fr: 'Fort historique gardant l’entrée du Vieux-Port, intégré au Mucem et parcouru de jardins et passerelles.', en: 'A historic fort guarding the Old Port entrance, incorporated into Mucem with gardens and footbridges.', zh: '一座历史悠久的堡垒，守卫着旧港入口，并入 Mucem，设有花园和人行桥。' },
-    highlights: [{ fr: 'Tours historiques', en: 'Historic towers', zh: '历史塔楼' }, { fr: 'Passerelles vers le Mucem', en: 'Footbridges to Mucem', zh: '通往 Mucem 的人行天桥' }], suggestedDurationMinutes: 90, latitude: 43.296, longitude: 5.362, sourceUrl: SOURCE,
+    highlights: [{ fr: 'Tours historiques', en: 'Historic towers', zh: '历史塔楼' }, { fr: 'Passerelles vers le Mucem', en: 'Footbridges to Mucem', zh: '通往 Mucem 的人行天桥' }], suggestedDurationMinutes: 90, latitude: 43.2954540, longitude: 5.3618104, sourceUrl: SOURCE,
   },
   {
     id: 'marseille-parc-borely', cityId: 'marseille', category: 'park', image: require('../../../assets/offline-pois/marseille/parc-borely.webp'), imageCredit: CREDIT,

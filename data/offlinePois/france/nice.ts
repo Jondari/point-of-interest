@@ -39,7 +39,7 @@ const seeds: FrenchPOISeed[] = [
     id: 'nice-musee-matisse', cityId: 'nice', category: 'museum', image: require('../../../assets/offline-pois/nice/musee-matisse.webp'), imageCredit: CREDIT,
     name: { fr: 'Musée Matisse', en: 'Matisse Museum', zh: '马蒂斯博物馆' }, address: { fr: '164 avenue des Arènes-de-Cimiez, 06000 Nice, France', en: '164 Avenue des Arènes-de-Cimiez, 06000 Nice, France', zh: '164 Avenue des Arènes-de-Cimiez, 06000 尼斯, 法国' },
     description: { fr: 'Musée consacré au parcours d’Henri Matisse, installé dans une villa génoise au cœur de Cimiez.', en: 'A museum devoted to Henri Matisse’s career, housed in a Genoese villa in the heart of Cimiez.', zh: '一座致力于亨利·马蒂斯职业生涯的博物馆，位于西米耶中心的一栋热那亚别墅内。' },
-    highlights: [{ fr: 'Œuvres de toutes les périodes', en: 'Works from every period', zh: '各个时期的作品' }, { fr: 'Villa des Arènes', en: 'Villa des Arènes', zh: '竞技场别墅' }], suggestedDurationMinutes: 120, latitude: 43.719, longitude: 7.276, website: 'https://www.musee-matisse-nice.org/', sourceUrl: SOURCE,
+    highlights: [{ fr: 'Œuvres de toutes les périodes', en: 'Works from every period', zh: '各个时期的作品' }, { fr: 'Villa des Arènes', en: 'Villa des Arènes', zh: '竞技场别墅' }], suggestedDurationMinutes: 120, latitude: 43.7194452, longitude: 7.2759743, website: 'https://www.musee-matisse-nice.org/', sourceUrl: SOURCE,
   },
   {
     id: 'nice-musee-chagall', cityId: 'nice', category: 'museum', image: require('../../../assets/offline-pois/nice/musee-chagall.webp'), imageCredit: CREDIT,
@@ -75,7 +75,7 @@ const seeds: FrenchPOISeed[] = [
     id: 'nice-archeologie-cimiez', cityId: 'nice', category: 'historic', image: require('../../../assets/offline-pois/nice/archeologie-cimiez.webp'), imageCredit: CREDIT,
     name: { fr: 'Arènes et musée archéologique de Cimiez', en: 'Cimiez Arena and Archaeology Museum', zh: '西米耶竞技场和考古博物馆' }, address: { fr: '160 avenue des Arènes-de-Cimiez, 06000 Nice, France', en: '160 Avenue des Arènes-de-Cimiez, 06000 Nice, France', zh: '160 Avenue des Arènes-de-Cimiez, 06000 尼斯, 法国' },
     description: { fr: 'Site de la ville romaine de Cemenelum avec amphithéâtre, thermes et collections archéologiques.', en: 'The site of the Roman city of Cemenelum, with an amphitheatre, baths and archaeological collections.', zh: '罗马城市塞梅内勒姆遗址，拥有圆形剧场、浴室和考古收藏品。' },
-    highlights: [{ fr: 'Thermes romains', en: 'Roman baths', zh: '罗马浴场' }, { fr: 'Amphithéâtre antique', en: 'Ancient amphitheatre', zh: '古代圆形剧场' }], suggestedDurationMinutes: 120, latitude: 43.719, longitude: 7.276, sourceUrl: SOURCE,
+    highlights: [{ fr: 'Thermes romains', en: 'Roman baths', zh: '罗马浴场' }, { fr: 'Amphithéâtre antique', en: 'Ancient amphitheatre', zh: '古代圆形剧场' }], suggestedDurationMinutes: 120, latitude: 43.7191755, longitude: 7.2753722, sourceUrl: SOURCE,
   },
   {
     id: 'nice-promenade-paillon', cityId: 'nice', category: 'park', image: require('../../../assets/offline-pois/nice/promenade-paillon.webp'), imageCredit: CREDIT,
