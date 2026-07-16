@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.2](https://github.com/Jondari/point-of-interest/compare/v0.7.1...v0.7.2) (2026-07-16)
+
+
+### Bug Fixes
+
+* **map:** prevent offline POI marker clipping on Android ([c462433](https://github.com/Jondari/point-of-interest/commit/c462433639064ebb118a06790b03585fa9f23e0f))
+
 ### [0.7.1](https://github.com/Jondari/point-of-interest/compare/v0.7.0...v0.7.1) (2026-07-16)
 
 
